@@ -12,7 +12,7 @@ cd advent_of_code_2021
 shards install
 crystal spec
 shards build
-bin/day1
+bin/aoc2021
 ```
 ## Contributors
 

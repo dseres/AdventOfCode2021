@@ -14,6 +14,7 @@ describe AdventOfCode2021 do
 269
 260
 263"
+  input = AdventOfCode2021::Day1.parse_input input
     AdventOfCode2021::Day1.solution1(input).should eq(7)
     AdventOfCode2021::Day1.solution2(input).should eq(5)
   end

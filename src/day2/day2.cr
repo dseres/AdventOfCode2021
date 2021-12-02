@@ -2,6 +2,8 @@ module AdventOfCode2021
   module Day2
     extend self
 
+    NUMBER = 2
+
     enum Direction
       Forward
       Down
@@ -31,7 +33,7 @@ module AdventOfCode2021
         else
           dist_y -= dist
         end
-        #puts "#{dir} #{dist} #{dist_x} #{dist_y}"
+        # puts "#{dir} #{dist} #{dist_x} #{dist_y}"
       end
       dist_x * dist_y
     end
@@ -53,10 +55,10 @@ module AdventOfCode2021
       end
       dist_x * dist_y
     end
+
+    def main
+      input = parse_input File.read "./src/day#{NUMBER}/input.txt"
+      puts "Solutions of day#{NUMBER} : #{solution1 input} #{solution2 input}"
+    end
   end
 end
-
-content = File.read "./src/day2/input.txt"
-input = AdventOfCode2021::Day2.parse_input(content)
-puts AdventOfCode2021::Day2.solution1 input
-puts AdventOfCode2021::Day2.solution2 input

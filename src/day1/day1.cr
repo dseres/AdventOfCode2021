@@ -1,31 +1,39 @@
 # TODO: Write documentation for `AdventOfCode2021`
 module AdventOfCode2021
   module Day1
-    def self.solution1(input : String) : Int32
+    extend self
+
+    NUMBER = 1
+
+    def parse_input(input : String) : Array(Int32)
+      input.lines.map &.to_i32
+    end
+
+    def self.solution1(input : Array(Int32)) : Int32
       count = 0
-      lines = input.lines.map &.to_i32
-      (1...lines.size).each do |i|
-        if lines[i - 1] < lines[i]
+      (1...input.size).each do |i|
+        if input[i - 1] < input[i]
           count += 1
         end
       end
       count
     end
 
-    def self.solution2(input : String) : Int32
+    def self.solution2(input : Array(Int32)) : Int32
       count = 0
-      lines = input.lines.map &.to_i32
-      (1..(lines.size - 3)).each do |i|
-        if lines[i - 1, 3].sum < lines[i, 3].sum
+      (1..(input.size - 3)).each do |i|
+        if input[i - 1, 3].sum < input[i, 3].sum
           count += 1
         end
-        # puts "#{lines[i-1,3].sum} < #{lines[i,3].sum} , count: #{lines[i-1,3].sum < lines[i,3].sum}"
+        # puts "#{input[i-1,3].sum} < #{input[i,3].sum} , count: #{input[i-1,3].sum < input[i,3].sum}"
       end
       count
     end
+
+    def main
+      input = parse_input File.read "./src/day#{NUMBER}/input.txt"
+      puts "Solutions of day#{NUMBER} : #{solution1 input} #{solution2 input}"
+    end
+
   end
 end
-
-content = File.read "./src/day1/input.txt"
-puts AdventOfCode2021::Day1.solution1 content
-puts AdventOfCode2021::Day1.solution2 content
