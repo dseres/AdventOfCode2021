@@ -1,0 +1,13 @@
+name: advent_of_code_2021
+version: 0.1.0
+
+authors:
+  - dseres <dseres001@gmail.com>
+
+targets:
+  advent_of_code_2021:
+    main: src/advent_of_code_2021.cr
+
+crystal: 1.2.2
+
+license: MIT
