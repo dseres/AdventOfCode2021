@@ -1,27 +1,19 @@
 # advent_of_code_2021
 
-TODO: Write a description here
+This repository contains the solutions of [Advent Of Code 2021](https://adventofcode.com/) written in [crystal](https://crystal-lang.org/) programming language.
 
-## Installation
+## Installation and running
 
-TODO: Write installation instructions here
+You can build and run this project in a docker image represented by .gitpod.Dockerfile 
 
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
-
-## Contributing
-
-1. Fork it (<https://github.com/your-github-user/advent_of_code_2021/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
-
+``` bash
+git clone https://github.com/dseres/advent_of_code_2021.git
+cd advent_of_code_2021
+shards install
+crystal spec
+shards build
+bin/day1
+```
 ## Contributors
 
 - [dseres](https://github.com/your-github-user) - creator and maintainer
