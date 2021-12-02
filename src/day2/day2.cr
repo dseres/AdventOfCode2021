@@ -31,6 +31,7 @@ module AdventOfCode2021
         else
           dist_y -= dist
         end
+        #puts "#{dir} #{dist} #{dist_x} #{dist_y}"
       end
       dist_x * dist_y
     end
@@ -55,8 +56,7 @@ module AdventOfCode2021
   end
 end
 
-include AdventOfCode2021::Day2
 content = File.read "./src/day2/input.txt"
-input = parse_input(content)
-puts solution1 input
-puts solution2 input
+input = AdventOfCode2021::Day2.parse_input(content)
+puts AdventOfCode2021::Day2.solution1 input
+puts AdventOfCode2021::Day2.solution2 input
