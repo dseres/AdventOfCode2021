@@ -1,4 +1,3 @@
-
 require "./day1"
 require "./day2"
 require "./day3"
@@ -23,10 +22,10 @@ require "./day20"
 module AdventOfCode2021
   VERSION = "0.1.0"
 
-  Day1.main
-  Day2.main
-  Day3.main
-  # Day4.main
+  # Day1.main
+  # Day2.main
+  # Day3.main
+  Day4.main
   # Day5.main
   # Day6.main
   # Day7.main

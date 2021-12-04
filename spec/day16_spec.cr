@@ -1,7 +1,6 @@
 require "./spec_helper"
 
 describe AdventOfCode2021 do
-
   it "day16 should work" do
     str = ""
     input = AdventOfCode2021::Day16.parse_input(str)

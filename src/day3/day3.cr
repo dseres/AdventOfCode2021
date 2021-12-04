@@ -44,7 +44,7 @@ module AdventOfCode2021
     end
 
     private def find_o2(input, bit)
-      #p! input
+      # p! input
 
       if input.size == 1
         return input[0]
@@ -54,7 +54,7 @@ module AdventOfCode2021
     end
 
     private def find_co2(input, bit)
-      #p! input
+      # p! input
       if input.size == 1
         return input[0]
       end
@@ -64,7 +64,7 @@ module AdventOfCode2021
 
     private def select_o2_numbers(input, bit)
       count_0, count_1 = count_bits input, bit
-      #p! count_0, count_1
+      # p! count_0, count_1
       if (count_1 >= count_0)
         input.select { |n| n[bit] == '1' }
       else
@@ -74,7 +74,7 @@ module AdventOfCode2021
 
     def select_co2_numbers(input, bit)
       count_0, count_1 = count_bits input, bit
-      #p! count_0, count_1
+      # p! count_0, count_1
       if (count_0 <= count_1)
         input.select { |n| n[bit] == '0' }
       else

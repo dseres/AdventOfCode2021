@@ -34,6 +34,5 @@ module AdventOfCode2021
       input = parse_input File.read "./src/day#{NUMBER}/input.txt"
       puts "Solutions of day#{NUMBER} : #{solution1 input} #{solution2 input}"
     end
-
   end
 end
