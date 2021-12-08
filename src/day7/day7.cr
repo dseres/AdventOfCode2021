@@ -21,7 +21,7 @@ module AdventOfCode2021
       min = positions.min
       max = positions.max
       best_pos = (min..max).min_of do |i|
-        positions.sum { |p| ((p - i).abs * ((p-i).abs + 1)) // 2}
+        positions.sum { |p| ((p - i).abs * ((p - i).abs + 1)) // 2 }
       end
       best_pos
     end

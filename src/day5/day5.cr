@@ -28,8 +28,8 @@ module AdventOfCode2021
       vents.each do |vent|
         x1, y1, x2, y2 = vent
         if x1 == x2 || y1 == y2
-          (Math.min(x1,x2)..Math.max(x1,x2)).each do |x|
-            (Math.min(y1,y2)..Math.max(y1,y2)).each do |y|
+          (Math.min(x1, x2)..Math.max(x1, x2)).each do |x|
+            (Math.min(y1, y2)..Math.max(y1, y2)).each do |y|
               matrix[y][x] += 1
             end
           end
@@ -37,7 +37,7 @@ module AdventOfCode2021
       end
     end
 
-    def add_diagonals(matrix,vents)
+    def add_diagonals(matrix, vents)
       vents.each do |vent|
         x1, y1, x2, y2 = vent
         if (x2 - x1).abs == (y2 - y1).abs && x1 != x2
@@ -46,7 +46,7 @@ module AdventOfCode2021
           i = x1
           j = y1
           loop do
-            matrix[j][i] +=1
+            matrix[j][i] += 1
             i == x2 && break
             i += di
             j += dj

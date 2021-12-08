@@ -11,7 +11,7 @@ module AdventOfCode2021
     end
 
     def step_fishes(fishes, round)
-      #p! fishes
+      # p! fishes
       (1..round).each do
         fishes_new = Array(Int64).new(9, 0)
         (1..8).each do |i|
@@ -20,7 +20,7 @@ module AdventOfCode2021
         fishes_new[6] += fishes[0]
         fishes_new[8] = fishes[0]
         fishes = fishes_new
-        #p! fishes
+        # p! fishes
       end
       fishes
     end

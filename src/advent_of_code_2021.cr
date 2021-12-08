@@ -28,8 +28,8 @@ module AdventOfCode2021
   # Day4.main
   # Day5.main
   # Day6.main
-  Day7.main
-  # Day8.main
+  # Day7.main
+  Day8.main
   # Day9.main
   # Day10.main
   # Day11.main

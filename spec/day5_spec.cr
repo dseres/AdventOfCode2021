@@ -34,13 +34,13 @@ describe AdventOfCode2021 do
 222111...."
     vents = AdventOfCode2021::Day5.parse_input str
     matrix = AdventOfCode2021::Day5.create_matrix vents
-    matrix.should eq(Array.new(10, Array.new(10,0)))
-    
+    matrix.should eq(Array.new(10, Array.new(10, 0)))
+
     AdventOfCode2021::Day5.add_horizontal_or_vertiacals matrix, vents
     AdventOfCode2021::Day5.print_matrix(matrix).should eq(output_matrix)
     AdventOfCode2021::Day5.solution1(matrix).should eq(5)
-    
-    AdventOfCode2021::Day5.add_diagonals matrix,vents
+
+    AdventOfCode2021::Day5.add_diagonals matrix, vents
     AdventOfCode2021::Day5.print_matrix(matrix).should eq(output_matrix2)
     AdventOfCode2021::Day5.solution2(matrix).should eq(12)
   end
