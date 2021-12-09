@@ -35,7 +35,7 @@ module AdventOfCode2021
       chars = Hash( (String | Char), Array(Char)).new # chars of a display, e.g. abcdefg
       compute_segment_groups signals, chars
       compute_segments signals, chars
-      chars.select { |c, _v| c.is_a? Char }.map { |c, chars| Tuple.new(chars[0].as(Char), c.as(Char)) }.to_h
+      chars.select { |c, _v| c.is_a? Char }.map { |c, chars| {chars[0], c.as(Char)} }.to_h
     end
 
     private def compute_segment_groups(signals, chars)
@@ -51,7 +51,6 @@ module AdventOfCode2021
       chars["abfg"] = signals.select(&.size.== 6).map(&.chars).reduce { |chars1, chars2| chars1 & chars2 }
       # Number 4 with 4 segments, b,c,d,f
       signals.select { |s| s.size == 4 }.each do |s|
-        # two possible value for 'b','d'
         chars["bcdf"] = s.chars
       end
       # Number 2,3,5 with 5 segments -> a,d,g
@@ -87,8 +86,8 @@ module AdventOfCode2021
     @@numbers = ["abcefg", "cf", "acdeg", "acdfg", "bcdf", "abdfg", "abdefg", "acf", "abcdefg", "abcdfg"]
 
     private def get_digit(s, chars)
-      encoded = s.chars.map { |c| chars[c] }.sort.join
-      @@numbers.index(encoded).not_nil!
+      decoded = s.chars.map { |c| chars[c] }.sort.join
+      @@numbers.index(decoded).not_nil!
     end
 
     def main
