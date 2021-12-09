@@ -32,7 +32,7 @@ module AdventOfCode2021
 
     private def solve(signals) : Hash(Char, Char)
       # p! signals
-      chars = Hash( (String | Char), Array(Char)).new # chars of a display, e.g. abcdefg
+      chars = Hash((String | Char), Array(Char)).new # chars of a display, e.g. abcdefg
       compute_segment_groups signals, chars
       compute_segments signals, chars
       chars.select { |c, _v| c.is_a? Char }.map { |c, chars| {chars[0], c.as(Char)} }.to_h
