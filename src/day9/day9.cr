@@ -27,14 +27,18 @@ module AdventOfCode2021
     end
 
     private def is_low_point(input, i, j)
-      (Math.max(0, i - 1)..Math.min(i + 1, input.size - 1)).each do |n|
-        (Math.max(0, j - 1)..Math.min(j + 1, input[n].size - 1)).each do |m|
-          if (n != i || m != j) && input[n][m] < input[i][j]
+      (i - 1..i + 1).each do |n|
+        (j - 1..j + 1).each do |m|
+          if in_range(input, n, m) && {n, m} != {i, j} && input[n][m] < input[i][j]
             return false
           end
         end
       end
       true
+    end
+
+    private def in_range(input, i, j)
+      (0...input.size).includes?(i) && (0...input[i].size).includes?(j)
     end
 
     def solution2(input) : Int32
@@ -45,16 +49,14 @@ module AdventOfCode2021
       sizes.pop * sizes.pop * sizes.pop
     end
 
-    private def compute_basin(input, basin : Array(Tuple(Int32,Int32)), i, j)
-      [{i-1,j},{i+1,j},{i,j-1},{i,j+1}].each do |n,m|
-        if (0...input.size).includes?(n) && (0...input[n].size).includes?(m)
-          # puts "i : #{i}, j : #{j}, input[i][j] : #{input[i][j]}, n : #{n}, m : #{m}, input[n][m] : #{input[n][m]}"
-          if input[i][j] < input[n][m] && input[n][m] < 9 && basin.index({n, m}).nil?
-            basin << {n, m}
-            compute_basin input, basin, n, m
-          end
+    private def compute_basin(input, basin : Array(Tuple(Int32, Int32)), i, j)
+      [{i - 1, j}, {i + 1, j}, {i, j - 1}, {i, j + 1}].each
+        .select { |n, m| in_range(input, n, m) }
+        .select { |n, m| input[i][j] < input[n][m] && input[n][m] < 9 && basin.index({n, m}).nil? }
+        .each do |n, m|
+          basin << {n, m}
+          compute_basin input, basin, n, m
         end
-      end
       basin
     end
 
