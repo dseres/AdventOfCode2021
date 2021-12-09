@@ -41,7 +41,6 @@ module AdventOfCode2021
       basins = low_points(input).map do |i, j|
         compute_basin(input, [{i, j}], i, j)
       end
-      basins = basins.sort &.size
       sizes = basins.map(&.size).sort
       sizes.pop * sizes.pop * sizes.pop
     end
