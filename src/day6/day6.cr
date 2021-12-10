@@ -2,7 +2,7 @@ module AdventOfCode2021
   module Day6
     extend self
 
-    NUMBER = 6
+    DAY = 6
 
     def parse_input(input : String) : Array(Int64)
       fishes = Array(Int64).new(9, 0)
@@ -34,8 +34,8 @@ module AdventOfCode2021
     end
 
     def main
-      fishes = parse_input File.read "./src/day#{NUMBER}/input.txt"
-      puts "Solutions of day#{NUMBER} : #{solution1 fishes} #{solution2 fishes}"
+      fishes = parse_input File.read "./src/day#{DAY}/input.txt"
+      puts "Solutions of day#{DAY} : #{solution1 fishes} #{solution2 fishes}"
     end
   end
 end

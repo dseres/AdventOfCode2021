@@ -2,7 +2,7 @@ module AdventOfCode2021
   module Day5
     extend self
 
-    NUMBER = 5
+    DAY = 5
 
     def parse_input(input : String)
       vents = Array(Array(Int32)).new
@@ -68,7 +68,7 @@ module AdventOfCode2021
     end
 
     def main
-      vents = parse_input File.read "./src/day#{NUMBER}/input.txt"
+      vents = parse_input File.read "./src/day#{DAY}/input.txt"
       matrix = create_matrix vents
 
       add_horizontal_or_vertiacals matrix, vents

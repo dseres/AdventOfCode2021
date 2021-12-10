@@ -2,7 +2,7 @@ module AdventOfCode2021
   module Day3
     extend self
 
-    NUMBER = 3
+    DAY = 3
 
     def parse_input(input : String) : Array(String)
       input.lines
@@ -83,8 +83,8 @@ module AdventOfCode2021
     end
 
     def main
-      input = parse_input File.read "./src/day#{NUMBER}/input.txt"
-      puts "Solutions of day#{NUMBER} : #{solution1 input} #{solution2 input}"
+      input = parse_input File.read "./src/day#{DAY}/input.txt"
+      puts "Solutions of day#{DAY} : #{solution1 input} #{solution2 input}"
     end
   end
 end

@@ -2,7 +2,7 @@ module AdventOfCode2021
   module Day4
     extend self
 
-    NUMBER = 4
+    DAY = 4
 
     # Bingo table. If one number is marked this number will be changed to Nil in this representation.
     alias Table = Array(Array(Int32?))
@@ -65,9 +65,9 @@ module AdventOfCode2021
     end
 
     def main
-      numbers, tables = parse_input File.read "./src/day#{NUMBER}/input.txt"
+      numbers, tables = parse_input File.read "./src/day#{DAY}/input.txt"
       solved_tables = tables.map { |t| solve(t, numbers).not_nil! }
-      puts "Solutions of day#{NUMBER} : #{solution1 solved_tables} #{solution2 solved_tables}"
+      puts "Solutions of day#{DAY} : #{solution1 solved_tables} #{solution2 solved_tables}"
     end
   end
 end

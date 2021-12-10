@@ -2,7 +2,7 @@ module AdventOfCode2021
   module Day7
     extend self
 
-    NUMBER = 7
+    DAY = 7
 
     def parse_input(input : String) : Array(Int32)
       input.split(",").map &.to_i32
@@ -27,8 +27,8 @@ module AdventOfCode2021
     end
 
     def main
-      positions = parse_input File.read "./src/day#{NUMBER}/input.txt"
-      puts "Solutions of day#{NUMBER} : #{solution1 positions} #{solution2 positions}"
+      positions = parse_input File.read "./src/day#{DAY}/input.txt"
+      puts "Solutions of day#{DAY} : #{solution1 positions} #{solution2 positions}"
     end
   end
 end
