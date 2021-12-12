@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe AdventOfCode2021 do
-  it "small example of day12 should work", focus: true do
+  it "small example of day12 should work" do
     str = <<-INPUT
 start-A
 start-b
