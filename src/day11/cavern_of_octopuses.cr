@@ -63,8 +63,8 @@ module AdventOfCode2021::Day11
     end
 
     def is_flashing_all
-        sum = @octopuses.map(&.sum).sum(0.as(Int32))
-        sum == 0
+      sum = @octopuses.map(&.sum).sum(0.as(Int32))
+      sum == 0
     end
 
     def ==(other : CavernOfOctopuses)
