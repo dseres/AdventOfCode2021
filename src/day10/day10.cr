@@ -64,7 +64,7 @@ module AdventOfCode2021
       if stack.empty?
         initial
       else
-        next_value = initial * 5 + @@points[stack.pop] 
+        next_value = initial * 5 + @@points[stack.pop]
         get_stack_points stack, next_value
       end
     end

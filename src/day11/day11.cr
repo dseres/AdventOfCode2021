@@ -1,4 +1,5 @@
 require "./*"
+
 module AdventOfCode2021::Day11
   extend self
   DAY = 11
