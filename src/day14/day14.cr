@@ -32,13 +32,13 @@ module AdventOfCode2021
       times.times do
         pairs = next_pairs pairs, rules
       end
-      chars = count_chars pairs
-      chars[polymer[0]]+=1
+      chars = count_second_chars pairs
+      chars[polymer[0]] += 1
       chars.max_of(&.[1]) - chars.min_of(&.[1])
     end
 
     private def count_pairs(polymer, rules)
-      counter = rules.map { |pair, _c| {pair, 0.to_u64} }.to_h
+      counter = new_counter rules
       (0..polymer.size - 2).each do |i|
         part = polymer[i, 2]
         counter[part] += 1
@@ -46,18 +46,23 @@ module AdventOfCode2021
       counter
     end
 
+    private def new_counter(rules)
+      rules.map { |pair, _c| {pair, 0.to_u64} }.to_h
+    end
+
     private def next_pairs(counters, rules)
-      next_pairs = rules.map { |pair, _c| {pair, 0.to_u64} }.to_h
+      next_pairs = new_counter rules
       counters.each do |pair, counter|
-        next_pair1 = "#{pair[0]}#{rules[pair]}"
+        middle_char = rules[pair]
+        next_pair1 = "" + pair[0] + middle_char
         next_pairs[next_pair1] += counter
-        next_pair2 = "#{rules[pair]}#{pair[1]}"
+        next_pair2 = "" + middle_char + pair[1]
         next_pairs[next_pair2] += counter
       end
       next_pairs
     end
 
-    private def count_chars(pair_counters : Hash(String, UInt64))
+    private def count_second_chars(pair_counters : Hash(String, UInt64))
       counters = Hash(Char, UInt64).new
       pair_counters.keys.each(&.chars.each { |c| counters[c] = 0 })
       pair_counters.each do |pair, counter|
