@@ -16,6 +16,6 @@ describe AdventOfCode2021 do
 INPUT
     cave = AdventOfCode2021::Day15::Cave.new(input)
     cave.solution1().should eq(40)
-    cave.solution2().should eq(0)
+    cave.solution2().should eq(315)
   end
 end
