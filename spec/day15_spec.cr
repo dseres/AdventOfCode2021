@@ -2,10 +2,20 @@ require "./spec_helper"
 
 describe AdventOfCode2021 do
   it "day15 should work" do
-    str = <<-INPUT
+  input = <<-INPUT
+1163751742
+1381373672
+2136511328
+3694931569
+7463417111
+1319128137
+1359912421
+3125421639
+1293138521
+2311944581
 INPUT
-    input = AdventOfCode2021::Day15.parse_input(str)
-    AdventOfCode2021::Day15.solution1(input).should eq(0)
-    AdventOfCode2021::Day15.solution2(input).should eq(0)
+    cave = AdventOfCode2021::Day15::Cave.new(input)
+    cave.solution1().should eq(40)
+    cave.solution2().should eq(0)
   end
 end
