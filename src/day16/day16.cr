@@ -4,10 +4,6 @@ module AdventOfCode2021
 
     DAY = 16
 
-    def parse_input(input : String) : Array(String)
-      input.lines
-    end
-
     def solution1(input) : Int32
       0
     end
@@ -17,7 +13,7 @@ module AdventOfCode2021
     end
 
     def main
-      input = parse_input File.read "./src/day#{DAY}/input.txt"
+      input = File.read "./src/day#{DAY}/input.txt"
       puts "Solutions of day#{DAY} : #{solution1 input} #{solution2 input}"
     end
   end

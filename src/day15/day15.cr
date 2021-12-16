@@ -77,15 +77,15 @@ module AdventOfCode2021
       end
 
       private def generate_other_rows
-        (1..4).each do |i|
-          rows = @chitons.dup
-          rows do |row|
-            @chitons << rows.map { |v| step_value v, i }
+        rows = @chitons.dup
+        (1...5).each do |i|
+          rows.each do |row|
+            @chitons << row.map { |v| step_value v, i }
           end
         end
       end
 
-      private def step_value(value, steps)
+      private def step_value(value : Int8, steps)
         value += steps
         if (value <= 9)
           value
