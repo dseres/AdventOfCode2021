@@ -22,25 +22,17 @@ module AdventOfCode2021
         @risks = Array(Array(Int32)).new(@chitons.size) { |i| Array(Int32).new(@chitons[i].size, 0) }
         @risks[0][0] = @chitons[0][0].to_i32
         @next_set = [{1, 0}, {0, 1}].to_set
-        while @next_set.size > 0 && @risks[@risks.size - 1][@risks[@risks.size - 1].size - 1] == 0
+        while @next_set.size > 0 && @risks.last.last == 0
           process_next
         end
-        # @risks.each{|row|
-        #   row.each{|risk| printf("%4d", risk)}
-        #   puts ""
-        # }
-        @risks[@risks.size - 1][@risks[@risks.size - 1].size - 1] - @chitons[0][0]
+        @risks.last.last - @chitons[0][0]
       end
 
       private def process_next
         x0, y0 = @next_set.min_by { |x, y| @risks[x][y] }
         @next_set.delete({x0, y0})
-        # neighbours = neighbours_of x0, y0
-        # pp!({x0, y0}, @next_set, neighbours)
         set_current_risk x0, y0
         compute_next_node x0, y0
-        # pp!(@risks)
-        # gets
       end
 
       private def neighbours_of(x, y)
@@ -67,16 +59,6 @@ module AdventOfCode2021
         end
       end
 
-      private def compute_neigbours(x0, y0)
-        neighbours = neighbours_of x0, y0
-        neighbours.each do |x, y|
-          if @risks[x][y] > 0 && @risks[x][y] > @risks[x0][y0] + @chitons[x][y]
-            @risks[x][y] = @risks[x0][y0] + @chitons[x][y]
-            compute_neigbours x, y
-          end
-        end
-      end
-
       def solution2 : Int32
         # copy chitons
         generate_chitons
@@ -90,28 +72,25 @@ module AdventOfCode2021
 
       private def generate_first_row
         @chitons = @input_chitons.map do |row|
-          nrow = [] of Int8
-          (0...5).each do |i|
-            nrow = nrow + row.map { |v| step_value v,i}
-          end
-          nrow
+          (0...5).map { |i| row.map { |v| step_value v, i } }.sum
         end
       end
 
       private def generate_other_rows
         (1..4).each do |i|
-          (0...@input_chitons.size).each do |j|
-            @chitons << @chitons[j].map { |v| step_value v,i }
+          rows = @chitons.dup
+          rows do |row|
+            @chitons << rows.map { |v| step_value v, i }
           end
         end
       end
 
-      private def step_value(value,steps)
+      private def step_value(value, steps)
         value += steps
         if (value <= 9)
           value
         else
-          value -9
+          value - 9
         end
       end
     end
