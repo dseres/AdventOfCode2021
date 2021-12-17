@@ -97,7 +97,7 @@ module AdventOfCode2021
           @last_bit += 5
         end
         @last_bit += 5
-        #pp! @literal, @literals
+        # pp! @literal, @literals
       end
 
       private def parse_length_type
@@ -145,26 +145,24 @@ module AdventOfCode2021
       end
 
       def value : Int64
-        v = case @type
+        case @type
         when PacketType::Sum
-           @subpackets.not_nil!.sum{|sp| sp.as(Packet).value}
+          @subpackets.not_nil!.sum &.value 
         when PacketType::Product
-           @subpackets.not_nil!.product{|sp| sp.as(Packet).value}
+          @subpackets.not_nil!.product &.value 
         when PacketType::Minimum
-           @subpackets.not_nil!.min_of{|sp| sp.as(Packet).value}
+          @subpackets.not_nil!.min_of &.value 
         when PacketType::Maximum
-           @subpackets.not_nil!.max_of{|sp| sp.as(Packet).value}
+          @subpackets.not_nil!.max_of &.value 
         when PacketType::Literal
-           @literal.to_i64
+          @literal.to_i64
         when PacketType::GreaterThan
-           (@subpackets.not_nil![0].value > @subpackets.not_nil![1].value ? 1 : 0).to_i64
+          (@subpackets.not_nil![0].value > @subpackets.not_nil![1].value ? 1 : 0).to_i64
         when PacketType::LessThan
-           (@subpackets.not_nil![0].value < @subpackets.not_nil![1].value ? 1 : 0).to_i64
+          (@subpackets.not_nil![0].value < @subpackets.not_nil![1].value ? 1 : 0).to_i64
         else # PacketType::EqualTo
-           (@subpackets.not_nil![0].value == @subpackets.not_nil![1].value ? 1 : 0).to_i64
+          (@subpackets.not_nil![0].value == @subpackets.not_nil![1].value ? 1 : 0).to_i64
         end
-        #pp! @type, v
-        v
       end
     end
 
@@ -176,14 +174,14 @@ module AdventOfCode2021
 
     def solution2(input : String) : Int64
       packet = Packet.new(input)
-      #pp! input, packet, packet.value
+      # pp! input, packet, packet.value
       packet.value
     end
 
     def main
       input = File.read("./src/day#{DAY}/input.txt").chomp
       puts "Solutions of day#{DAY} : #{solution1 input} #{solution2 input}"
-      #pp! input, Packet.new(input)
+      # pp! input, Packet.new(input)
     end
   end
 end

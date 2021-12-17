@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe AdventOfCode2021 do
-  it "day16 should work" , focus: true do
+  it "day16 should work" do
     AdventOfCode2021::Day16.solution1("D2FE28").should eq(6)
     AdventOfCode2021::Day16.solution1("38006F45291200").should eq(9)
     AdventOfCode2021::Day16.solution1("EE00D40C823060").should eq(14)
