@@ -26,7 +26,6 @@ module AdventOfCode2021
       getter version = 0
       getter type = PacketType::Literal
       getter length_type = LengthType::None
-      getter literals : Array(Int32)?
       getter literal = 0_i64
       getter packet_count = 0
       getter packet_total = 0
@@ -61,8 +60,8 @@ module AdventOfCode2021
 
       private def parse_version_and_type
         @version = bits_to_i bits[0, 3]
-        type = bits_to_i bits[3, 3]
-        @type = PacketType.from_value(type)
+        type_bits = bits_to_i bits[3, 3]
+        @type = PacketType.from_value(type_bits)
       end
 
       private def parse_remaining
@@ -79,25 +78,20 @@ module AdventOfCode2021
         number = 0
         bits.each do |b|
           number <<= 1
-          number |= b.to_unsafe
+          number |= (b ? 1 : 0)
         end
         number
       end
 
       private def parse_literals
-        @last_bit = 6
         @literal = 0_i64
-        @literals = [] of Int32
+        @last_bit = 6
         loop do
-          next_part = bits_to_i bits[@last_bit + 1, 4]
-          @literals.not_nil! << next_part
-          @literal <<= 4
-          @literal |= next_part
-          bits[@last_bit] || break
+          digit = bits_to_i bits[@last_bit + 1, 4]
           @last_bit += 5
+          @literal = (@literal << 4) | digit
+          bits[@last_bit - 5] || break
         end
-        @last_bit += 5
-        # pp! @literal, @literals
       end
 
       private def parse_length_type
@@ -147,13 +141,13 @@ module AdventOfCode2021
       def value : Int64
         case @type
         when PacketType::Sum
-          @subpackets.not_nil!.sum &.value 
+          @subpackets.not_nil!.sum &.value
         when PacketType::Product
-          @subpackets.not_nil!.product &.value 
+          @subpackets.not_nil!.product &.value
         when PacketType::Minimum
-          @subpackets.not_nil!.min_of &.value 
+          @subpackets.not_nil!.min_of &.value
         when PacketType::Maximum
-          @subpackets.not_nil!.max_of &.value 
+          @subpackets.not_nil!.max_of &.value
         when PacketType::Literal
           @literal.to_i64
         when PacketType::GreaterThan
