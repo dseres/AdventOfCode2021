@@ -1,11 +1,8 @@
 require "./spec_helper"
 
 describe AdventOfCode2021 do
-  it "day17 should work" do
-    str = <<-INPUT
-INPUT
-    input = AdventOfCode2021::Day17.parse_input(str)
-    AdventOfCode2021::Day17.solution1(input).should eq(0)
-    AdventOfCode2021::Day17.solution2(input).should eq(0)
+  it "day17 should work", focus: true do
+    str = "target area: x=20..30, y=-10..-5"
+    AdventOfCode2021::Day17.solutions(str).should eq({45,112})
   end
 end
