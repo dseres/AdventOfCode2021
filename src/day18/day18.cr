@@ -168,6 +168,7 @@ module AdventOfCode2021
       private def add_left_to_the_previous(value : Int32, index : Int32, nodes : Array(SailfishNumber))
         if index > 0
           node = nodes[index - 1]
+          # You should check it, previous node could be [a,[b,c]], where [b,c] is the bad node
           if node.right.is_a? self
             node.left = node.left.as(Int32) + value
           else
