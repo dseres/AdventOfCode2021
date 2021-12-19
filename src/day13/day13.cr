@@ -58,7 +58,7 @@ module AdventOfCode2021
         fold_one foldings.first
         points.size
       end
-      
+
       def fold_one(folding)
         if folding.axis == Axis::X
           fold_x folding.line

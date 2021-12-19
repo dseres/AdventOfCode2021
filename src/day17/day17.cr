@@ -52,7 +52,7 @@ module AdventOfCode2021
       end
     end
 
-    def solutions(input : String) : Tuple(Int32,Int32)
+    def solutions(input : String) : Tuple(Int32, Int32)
       area = Area.new(input)
       lx, ly = area.limits
       my = Int32::MIN

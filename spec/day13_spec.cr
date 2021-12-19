@@ -26,8 +26,8 @@ fold along y=7
 fold along x=5
 INPUT
     paper = AdventOfCode2021::Day13::ElvesCameraManual.new str
-    paper.do_folding_one.should eq 17 
-    #AdventOfCode2021::Day13.solution1(input).should eq(17)
-    #AdventOfCode2021::Day13.solution2(input).should eq(0)
+    paper.do_folding_one.should eq 17
+    # AdventOfCode2021::Day13.solution1(input).should eq(17)
+    # AdventOfCode2021::Day13.solution2(input).should eq(0)
   end
 end

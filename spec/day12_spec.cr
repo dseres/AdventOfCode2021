@@ -23,7 +23,7 @@ start,b,A,c,A,end
 start,b,A,end
 start,b,end
 INPUT
-output2 = <<-INPUT
+    output2 = <<-INPUT
 start,A,b,A,b,A,c,A,end
 start,A,b,A,b,A,end
 start,A,b,A,b,end
@@ -61,7 +61,7 @@ start,b,d,b,A,end
 start,b,d,b,end
 start,b,end
 INPUT
-     ts = AdventOfCode2021::Day12::TroglodyticSystem.new(str)
+    ts = AdventOfCode2021::Day12::TroglodyticSystem.new(str)
     ts.compute_pathes.map(&.join ",").join("\n").should eq(output)
     ts.compute_pathes2.map(&.join ",").join("\n").should eq(output2)
   end
