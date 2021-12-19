@@ -10,8 +10,6 @@ module AdventOfCode2021
       # Sailfish number can be included recursively on 5 level
       # alias SnArray = Array(Array(Array(Array(Array(Int32) | Int32) | Int32) | Int32) | Int32)
 
-      alias SnArray = Array(Int32 | SnArray)
-
       property left : Int32 | SailfishNumber = 0
       property right : Int32 | SailfishNumber = 0
       property parent : SailfishNumber? = nil
