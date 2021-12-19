@@ -72,43 +72,78 @@ module AdventOfCode2021
         false
       end
 
+      def self.zero
+        SailfishNumber.new -1, -1, nil
+      end
+
       def +(other : SailfishNumber) : SailfishNumber
+        return self if other == SailfishNumber.zero
+        return other if self == SailfishNumber.zero
         sum = SailfishNumber.new self.clone, other.clone
         sum.left.as(SailfishNumber).parent = sum
         sum.right.as(SailfishNumber).parent = sum
-        # sum.reduce
-        sum
+        sum.reduce
       end
 
       def reduce : SailfishNumber
-        while reduce_by_depth || reduce_by_numbers
+        loop do
+          search_for_explodes
+          bad = find_first_node_to_split
+          break if bad.nil?
+          split(bad)
+          # puts "after split:\t#{self}"
         end
         self
       end
 
-      def reduce_by_depth : Bool
-        ns2r = find_nodes_to_reduce 1
-        if !ns2r.empty?
-          sorted = [] of self
-          sort_nodes_from_left_to_right(self, sorted)
-          ns2r.each { |node| reduce_node(node, sorted) }
+      def search_for_explodes
+        loop do
+          bad = find_first_node_to_explode
+          break if bad.nil?
+          explode(bad)
+          # puts "after explode:\t#{self}"
         end
-        !ns2r.empty?
       end
 
-      def find_nodes_to_reduce(depth : Int32) : Array(SailfishNumber)
-        nodes = [] of SailfishNumber
-        if depth <= 4
-          if @left.is_a? SailfishNumber
-            nodes += @left.as(SailfishNumber).find_nodes_to_reduce(depth + 1)
-          end
-          if @right.is_a? SailfishNumber
-            nodes += @right.as(SailfishNumber).find_nodes_to_reduce(depth + 1)
-          end
-        else
-          nodes << self
-        end
-        nodes
+      def find_first_node_to_explode : SailfishNumber?
+        find_first_node_to_explode self, 1
+      end
+
+      def find_first_node_to_explode(node : SailfishNumber, level : Int32) : SailfishNumber?
+        return node if level > 4
+        result = check_explode_on_child(node.left, level)
+        return result unless result.nil?
+        check_explode_on_child(node.right, level)
+      end
+
+      def check_explode_on_child(child : SailfishNumber | Int32, level : Int32) : SailfishNumber?
+        return find_first_node_to_explode(child, level + 1) if child.is_a?(SailfishNumber)
+      end
+
+      def find_first_node_to_split : SailfishNumber?
+        find_first_node_to_split self
+      end
+
+      def find_first_node_to_split(node : SailfishNumber) : SailfishNumber?
+        result = check_split_on_child(node, node.left)
+        return result unless result.nil?
+        check_split_on_child(node, node.right)
+      end
+
+      def check_split_on_child(parent : SailfishNumber, child : SailfishNumber | Int32) : SailfishNumber?
+        return parent if child.is_a?(Int32) && child > 9
+        return find_first_node_to_split(child) if child.is_a?(SailfishNumber)
+      end
+
+      def explode(bad : SailfishNumber)
+        sorted = sort_nodes_from_left_to_right
+        reduce_node(bad, sorted)
+      end
+
+      private def sort_nodes_from_left_to_right
+        sorted = [] of self
+        sort_nodes_from_left_to_right(self, sorted)
+        sorted
       end
 
       private def sort_nodes_from_left_to_right(node : SailfishNumber, nodes : Array(SailfishNumber))
@@ -134,20 +169,22 @@ module AdventOfCode2021
 
       private def add_left_to_the_previous(value : Int32, index : Int32, nodes : Array(SailfishNumber))
         if index > 0
-          if nodes[index - 1].right.is_a? self
-            nodes[index - 1].left = nodes[index - 1].left.as(Int32) + value
+          node = nodes[index - 1]
+          if node.right.is_a? self
+            node.left = node.left.as(Int32) + value
           else
-            nodes[index - 1].right = nodes[index - 1].right.as(Int32) + value
+            node.right = node.right.as(Int32) + value
           end
         end
       end
 
       private def add_right_to_the_next(value : Int32, index : Int32, nodes : Array(SailfishNumber))
         if index < nodes.size - 1
-          if nodes[index + 1].left.is_a? self
-            nodes[index + 1].right = nodes[index + 1].right.as(Int32) + value
+          node = nodes[index + 1]
+          if node.left.is_a? self
+            node.right = node.right.as(Int32) + value
           else
-            nodes[index + 1].left = nodes[index + 1].left.as(Int32) + value
+            node.left = node.left.as(Int32) + value
           end
         end
       end
@@ -163,26 +200,66 @@ module AdventOfCode2021
         end
       end
 
-      private def reduce_by_numbers
-        false
+      private def split(node : self)
+        return if split_left_number(node)
+        return if split_right_number(node)
+      end
+
+      private def split_left_number(node : self)
+        left = node.left
+        if left.is_a?(Int32) && left > 9
+          node.left = SailfishNumber.new((left / 2).floor.to_i32, (left / 2).ceil.to_i32, node)
+        end
+      end
+
+      private def split_right_number(node : self)
+        right = node.right
+        if right.is_a?(Int32) && right > 9
+          node.right = SailfishNumber.new((right / 2).floor.to_i32, (right / 2).ceil.to_i32, node)
+        end
+      end
+
+      def magnitude : Int32
+        left = magnitude @left
+        right = magnitude @right
+        3 * left + 2 * right
+      end
+
+      private def magnitude(child : SailfishNumber | Int32) : Int32
+        value = child.as?(Int32)
+        return value unless value.nil?
+        child = child.as(SailfishNumber)
+        child.magnitude
       end
     end
 
-    def parse_input(input : String) : Array(String)
-      input.lines
+    def parse_input(input : String) : Array(SailfishNumber)
+      input.lines.map { |line| SailfishNumber.new(line) }
     end
 
-    def solution1(input) : Int32
-      0
+    def solution1(numbers : Array(SailfishNumber)) : Int32
+      numbers.sum.as(SailfishNumber).magnitude
     end
 
-    def solution2(input) : Int32
-      0
+    def solution2(input : Array(SailfishNumber)) : Int32
+      max = 0
+      0.upto(input.size - 2) do |i|
+        0.upto(input.size - 2) do |j|
+          if i != j
+            sum = input[i] + input[j]
+            magnitude = sum.magnitude
+            if max < magnitude
+              max = magnitude
+            end
+          end
+        end
+      end
+      max
     end
 
     def main
-      input = parse_input File.read "./src/day#{DAY}/input.txt"
-      puts "Solutions of day#{DAY} : #{solution1 input} #{solution2 input}"
+      numbers = parse_input File.read "./src/day#{DAY}/input.txt"
+      puts "Solutions of day#{DAY} : #{solution1 numbers} #{solution2 numbers}"
     end
   end
 end
