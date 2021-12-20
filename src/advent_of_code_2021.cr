@@ -39,7 +39,7 @@ module AdventOfCode2021
   # Day15.main
   # Day16.main
   # Day17.main
-  Day18.main
+  # Day18.main
   # Day19.main
   # Day20.main
 end
