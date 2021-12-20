@@ -39,7 +39,7 @@ module AdventOfCode2021::Day19
     end
 
     def to_s(io)
-      io << "[" << x << "," << y << "," << z << "]"
+      io.printf("[%4d, %4d, %4d]", @x, @y, @z)
     end
 
     def ==(other : Beam)
@@ -56,6 +56,10 @@ module AdventOfCode2021::Day19
 
     def -(other : Beam)
       Beam.new(@x - other.x, @y - other.y, @z - other.z)
+    end
+
+    def <=>(other : Beam)
+      [@x, @y, @z] <=> [other.x, other.y, other.z]
     end
   end
 
@@ -138,11 +142,14 @@ module AdventOfCode2021::Day19
     end
 
     def find_pairs
-      pairs = [] of {Int32, Int32}
+      pairs = [] of {Int32, Int32, RotatingMatrix, Beam, Int32}
       scanners.each do |s1|
         scanners.each do |s2|
-          if s1 != s2 && get_common_beams(s1, s2) >= 12
-            pairs << {s1.id, s2.id}
+          if s1.object_id != s2.object_id
+            t, diff, commons = get_common_beams(s1, s2)
+            if commons >= 12
+              pairs << {s1.id, s2.id, t, diff, commons}
+            end
           end
         end
       end
@@ -151,18 +158,34 @@ module AdventOfCode2021::Day19
 
     def get_common_beams(s1, s2)
       RotatingMatrix.all_rotations.map() do |t|
+        #print_scanners t, s1, s2
         s2t = s2 * t
-        commons = compare_beams s1, s2t
-        puts t, commons
-        commons
-      end.max
+        diff, commons = compare_beams s1, s2t
+        # puts t, commons
+        {t, diff, commons}
+      end.max_by &.[2]
+    end
+
+    def print_scanners(t, s1, s2)
+      puts t
+      b1s = s1.beams.sort
+      b2s = s2.beams.sort
+      0.upto(Math.max(b1s.size, b2s.size) - 1) do |i|
+        if i < b1s.size && i < b2s.size
+          printf("%20s%20s%20s%20s\n", b1s[i], b2s[i], b2s[i] * t, Beam.new(68,-1246,-43) + b2s[i] * t)
+        elsif i < b1s.size
+          printf("%20s\n", b1s[i])
+        else
+          printf("%20s%20s%20s%20s\n", "", b2s[i], b2s[i]*t, Beam.new(68,-1246,-43) + b2s[i] * t)
+        end
+      end
     end
 
     private def compare_beams(s1, s2)
       counter = {} of Beam => Int32
       s1.beams.each do |b1|
         s2.beams.each do |b2|
-          diff = b2 - b1
+          diff = b1 - b2
           if counter[diff]?.nil?
             counter[diff] = 1
           else
@@ -170,8 +193,8 @@ module AdventOfCode2021::Day19
           end
         end
       end
-      #counter.each { |beam,c| puts beam; pp! counter}
-      counter.max_of { |beam, c| c }
+      # counter.each { |beam,c| puts beam; pp! counter}
+      counter.max_by { |diff, commons| commons }
     end
   end
 

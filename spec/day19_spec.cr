@@ -42,7 +42,7 @@ describe AdventOfCode2021, focus: true do
   end
 
   it "Transformation should work on all of the beams of a scanner" do
-    scanners = ScannerSet.new(File.read "./src/day19/input.txt")
+    scanners = ScannerSet.new(File.read "./src/day19/spec_input.txt")
 
     s1 = scanners[0]
     s2 = s1 * RotatingMatrix.t0 
@@ -53,11 +53,24 @@ describe AdventOfCode2021, focus: true do
     s2.should eq s1
   end
 
-  it "Scanner 0 and scanner 1 and other scanners from example should overlap" do
-    scanners = ScannerSet.new(File.read "./src/day19/input.txt")
+  it "Scanner 0 and scanner 1 from example should overlap" do
+    scanners = ScannerSet.new(File.read "./src/day19/spec_input.txt")
 
-    puts scanners.get_common_beams(scanners[0], scanners[1])
-    #puts scanners.get_common_beams(scanners[0], scanners[4])
+    s0,s1 = scanners[0],scanners[1]
+    t = RotatingMatrix.all_rotations[10]
+    
+
+
+    #puts scanners.get_common_beams(scanners[0], scanners[1])
+    t, diff, commons = scanners.get_common_beams(scanners[0], scanners[1])
+    diff.should eq Beam.new(68, -1246, -43)
+    commons.should eq 12
+    t.should eq RotatingMatrix.new [-1,0,0,0,1,0,0,0,-1]
+  end
+
+  it "Print out found scanner pairs of example" do
+    scanners = ScannerSet.new(File.read "./src/day19/spec_input.txt")
+    pp! scanners.find_pairs
   end
 
   it "day19 should work" do
