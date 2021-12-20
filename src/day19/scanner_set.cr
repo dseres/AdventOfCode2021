@@ -51,18 +51,27 @@ module AdventOfCode2021::Day19
 
 
     def merge_scanners
-        s1 = scanners.remove_at(0)
-        scanners.each do |s2|
+        s1 = scanners.delete_at(0)
+        while !scanners.empty?
+            s2,t, diff,i = find_first_connected(s1, scanners).not_nil!
+            scanners.delete_at(i)
+            merge_scanners s1, s2, t, diff
+        end
+        s1
+    end
+
+    def find_first_connected(s1, scanners)
+        scanners.each_with_index do |s2, i|
             t, diff, commons = get_common_beams(s1, s2)
             if commons >= 12
-                merge_scanners s1,s2
-                break
+                return {s2, t, diff, i}
             end
         end
     end
 
-    def merge_scanners(s1,s2)
-
+    def merge_scanners(s1,s2,t,diff)
+        s2 = (s2 * t) + diff
+        s1.beams = (s1.beams + s2.beams).sort.uniq
     end
 
     def find_pairs : Array(Tuple(Scanner, Scanner, RotatingMatrix, Beam, Int32))
