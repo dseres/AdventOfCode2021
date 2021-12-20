@@ -1,11 +1,20 @@
 require "./spec_helper"
 
-describe AdventOfCode2021 do
+describe AdventOfCode2021 , focus: true do
   it "day20 should work" do
     str = <<-INPUT
+..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#..##..###..######.###...####..#..#####..##..#.#####...##.#.#..#.##..#.#......#.###.######.###.####...#.##.##..#..#..#####.....#.#....###..#.##......#.....#..#..#..##..#...##.######.####.####.#.#...#.......#..#.#.#...####.##.#......#..#...##.#.##..#...##.#.##..###.#......#.#.......#.#.#.####.###.##...#.....####.#..#..#.##.#....##..#.####....##...##..#...#......#.#.......#.......##..####..#...#.#.#...##..#.#..###..#####........#..####......#..#
+
+#..#.
+#....
+##..#
+..#..
+..###
 INPUT
     input = AdventOfCode2021::Day20.parse_input(str)
-    AdventOfCode2021::Day20.solution1(input).should eq(0)
-    AdventOfCode2021::Day20.solution2(input).should eq(0)
+    code,pic = input
+    code.size.should eq 512
+    AdventOfCode2021::Day20.solution1(*input).should eq(35)
+    AdventOfCode2021::Day20.solution2(*input).should eq(3351)
   end
 end
