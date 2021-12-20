@@ -2,7 +2,7 @@ require "./spec_helper"
 
 include AdventOfCode2021::Day19
 
-describe AdventOfCode2021, focus: true do
+describe AdventOfCode2021 do
   it "Product of rotating matrices should be an other rotating matrix" do
     (RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx).should eq RotatingMatrix.t0
     (RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx).should eq RotatingMatrix.tx
