@@ -70,7 +70,11 @@ describe AdventOfCode2021, focus: true do
 
   it "Print out found scanner pairs of example" do
     scanners = ScannerSet.new(File.read "./src/day19/spec_input.txt")
-    pp! scanners.find_pairs
+    scanners.find_pairs.each do |s1,s2,t,diff,n|
+      puts "#{s1.id} -> #{s2.id} : #{diff}, n = #{n}, transformation : \n#{t}"
+    end
+    # pp! scanners.make_union_of_beams
+    # pp! scanners.make_union_of_beams.size
   end
 
   it "day19 should work" do
