@@ -49,55 +49,30 @@ module AdventOfCode2021::Day19
       end
     end
 
-
-    def merge_scanners
-        s1 = scanners.delete_at(0)
-        finished = [ Beam.new(0,0,0)] 
-        while !scanners.empty?
-            s2,t, diff,i = find_first_connected(s1, scanners).not_nil!
-            finished << diff
-            scanners.delete_at(i)
-            merge_scanners s1, s2, t, diff
-        end
-        s1
+    def merge_scanners : Tuple(Scanner, Array(Beam))
+      s1 = scanners.delete_at(0)
+      centers = [Beam.new(0, 0, 0)]
+      while !scanners.empty?
+        s2, t, diff, i = find_first_connected(s1, scanners).not_nil!
+        centers << diff
+        scanners.delete_at(i)
+        merge_scanners s1, s2, t, diff
+      end
+      {s1, centers}
     end
 
     def find_first_connected(s1, scanners)
-        scanners.each_with_index do |s2, i|
-            t, diff, commons = get_common_beams(s1, s2)
-            if commons >= 12
-                return {s2, t, diff, i}
-            end
+      scanners.each_with_index do |s2, i|
+        t, diff, commons = get_common_beams(s1, s2)
+        if commons >= 12
+          return {s2, t, diff, i}
         end
-    end
-
-    def merge_scanners(s1,s2,t,diff)
-        s2 = (s2 * t) + diff
-        s1.beams = (s1.beams + s2.beams).sort.uniq
-    end
-
-    def find_pairs : Array(Tuple(Scanner, Scanner, RotatingMatrix, Beam, Int32))
-      pairs = [] of Tuple(Scanner, Scanner, RotatingMatrix, Beam, Int32)
-      to_check = scanners.reverse
-      s = to_check.pop
-      checked = [] of Scanner
-      find_pairs_for(s, to_check, checked, pairs)
-      pairs
-    end
-
-    private def find_pairs_for(s, to_check, checked, pairs)
-      return if to_check.empty?
-      to_check.each { |s2| check_pair s, s2, pairs }
-      checked << s
-      s = to_check.pop
-      find_pairs_for(s, to_check, checked, pairs)
-    end
-
-    private def check_pair(s1, s2, pairs)
-      t, diff, commons = get_common_beams(s1, s2)
-      if commons >= 12
-        pairs << {s1, s2, t, diff, commons}
       end
+    end
+
+    def merge_scanners(s1, s2, t, diff)
+      s2 = (s2 * t) + diff
+      s1.beams = (s1.beams + s2.beams).sort.uniq
     end
 
     def get_common_beams(s1, s2)
@@ -109,7 +84,6 @@ module AdventOfCode2021::Day19
         {t, diff, commons}
       end.max_by &.[2]
     end
-
 
     private def compare_beams(s1, s2)
       counter = {} of Beam => Int32
@@ -127,20 +101,11 @@ module AdventOfCode2021::Day19
       counter.max_by { |diff, commons| commons }
     end
 
+    def max_manhattan_distance(centers)
+        centers.cartesian_product(centers).map do |c1,c2|
+            (c1.x - c2.x).abs + (c1.y-c2.y).abs + (c1.z - c2.z).abs
+        end.max
+    end
 
-    def print_scanners(t, s1, s2)
-        puts t
-        b1s = s1.beams.sort
-        b2s = s2.beams.sort
-        0.upto(Math.max(b1s.size, b2s.size) - 1) do |i|
-          if i < b1s.size && i < b2s.size
-            printf("%20s%20s%20s%20s\n", b1s[i], b2s[i], b2s[i] * t, Beam.new(68, -1246, -43) + b2s[i] * t)
-          elsif i < b1s.size
-            printf("%20s\n", b1s[i])
-          else
-            printf("%20s%20s%20s%20s\n", "", b2s[i], b2s[i]*t, Beam.new(68, -1246, -43) + b2s[i] * t)
-          end
-        end
-      end
   end
 end
