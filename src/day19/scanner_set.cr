@@ -52,8 +52,10 @@ module AdventOfCode2021::Day19
 
     def merge_scanners
         s1 = scanners.delete_at(0)
+        finished = [ Beam.new(0,0,0)] 
         while !scanners.empty?
             s2,t, diff,i = find_first_connected(s1, scanners).not_nil!
+            finished << diff
             scanners.delete_at(i)
             merge_scanners s1, s2, t, diff
         end
