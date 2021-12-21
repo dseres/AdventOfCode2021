@@ -1,11 +1,21 @@
 require "./spec_helper"
 
-describe AdventOfCode2021 do
-  it "day21 should work" do
-    str = <<-INPUT
-INPUT
-    input = AdventOfCode2021::Day21.parse_input(str)
-    AdventOfCode2021::Day21.solution1(input).should eq(0)
-    AdventOfCode2021::Day21.solution2(input).should eq(0)
+include AdventOfCode2021::Day21
+
+describe AdventOfCode2021, focus: true do
+  it "example for part1 of day21 should work" do
+    str = "Player 1 starting position: 4\n" \
+          "Player 2 starting position: 8\n"
+    game = DiracDiceGame.new(str)
+    game.perform
+    game.solution.should eq(739785)
+  end
+
+  it "example for part2 of day21 should work" do
+    str = "Player 1 starting position: 4\n" \
+          "Player 2 starting position: 8\n"
+    game = QuantumDiracDiceGame.new(str)
+    game.perform
+    game.solution.should eq(444356092776315)
   end
 end
