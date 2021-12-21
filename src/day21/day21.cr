@@ -168,7 +168,6 @@ module AdventOfCode2021
     end
 
     class QuantumDiracDiceGame
-
       getter universes = Hash(UniverseStatus::Key, UniverseStatus).new
 
       def initialize(str : String)
@@ -176,6 +175,22 @@ module AdventOfCode2021
         universes[uni.key] = uni
       end
 
+      def perform
+        u = universes.min_by { |u| u.score }
+        u2s = u.roll_and_create_next_universes
+        u2s.each do |u|
+          k = u.key
+          if universes.has_key? k
+            # universes[k].merge u
+          else
+            universes[k] = u
+          end
+        end
+      end
+
+      def solution
+        0_i64
+      end
     end
 
     def main
