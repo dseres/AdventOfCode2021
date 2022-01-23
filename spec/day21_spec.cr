@@ -15,8 +15,7 @@ describe AdventOfCode2021, focus: true do
     str = "Player 1 starting position: 4\n" \
           "Player 2 starting position: 8\n"
     game = QuantumDiracDiceGame.new(str)
-    #game.perform
-    #pp! game
-    #game.solution.should eq(444356092776315)
+    game.perform
+    game.solution.should eq(444356092776315)
   end
 end
