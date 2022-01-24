@@ -11,16 +11,14 @@ module AdventOfCode2021
 
     class Cuboid
       property op : Operation
-      property x_range : Range(Int32,Int32)
-      property y_range : Range(Int32,Int32)
-      property z_range : Range(Int32,Int32)
+      property x_range : Range(Int32, Int32)
+      property y_range : Range(Int32, Int32)
+      property z_range : Range(Int32, Int32)
 
       def initialize(@op, @x_range, @y_range, @z_range); end
-    end
 
-    def parse_input(input : String) : Array(Cuboid)
-      input.lines.map do |line|
-        line =~ /^(on|off) x=(-?\d+)\.\.(-?\d+),y=(-?\d+)..(-?\d+),z=(-?\d+)..(-?\d+)$/
+      def initialize(str : String)
+        str =~ /^(on|off) x=(-?\d+)\.\.(-?\d+),y=(-?\d+)..(-?\d+),z=(-?\d+)..(-?\d+)$/
         op = Operation.parse $~[1]
         x1 = $~[2].to_i32
         x2 = $~[3].to_i32
@@ -28,8 +26,12 @@ module AdventOfCode2021
         y2 = $~[5].to_i32
         z1 = $~[6].to_i32
         z2 = $~[7].to_i32
-        Cuboid.new(op, (x1..x2), (y1..y2), (z1..z2))
+        initialize(op, (x1..x2), (y1..y2), (z1..z2))
       end
+    end
+
+    def parse_input(input : String) : Array(Cuboid)
+      input.lines.map { |line| Cuboid.new(line) }
     end
 
     def solution1(input) : Int32
