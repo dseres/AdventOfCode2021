@@ -18,6 +18,10 @@ require "./day17"
 require "./day18"
 require "./day19"
 require "./day20"
+require "./day21"
+require "./day22"
+require "./day23"
+require "./day24"
 
 module AdventOfCode2021
   VERSION = "0.1.0"
