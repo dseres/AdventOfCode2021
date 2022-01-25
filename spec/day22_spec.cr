@@ -27,8 +27,8 @@ on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
 on x=967..23432,y=45373..81175,z=27513..53682
 INPUT
     input = AdventOfCode2021::Day22.parse_input(str)
-    pp! input
-    AdventOfCode2021::Day22.solution1(input).should eq(0)
+    #pp! input
+    AdventOfCode2021::Day22.solution1(input).should eq(590784)
     AdventOfCode2021::Day22.solution2(input).should eq(0)
   end
 end
