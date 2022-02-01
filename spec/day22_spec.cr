@@ -1,6 +1,18 @@
 require "./spec_helper"
 
-describe AdventOfCode2021, focus: true do
+describe AdventOfCode2021 do
+  it "smaller example of day22 should work", focus: true do
+    str = <<-INPUT
+on x=10..12,y=10..12,z=10..12
+on x=11..13,y=11..13,z=11..13
+off x=9..11,y=9..11,z=9..11
+on x=10..10,y=10..10,z=10..10
+INPUT
+    input = AdventOfCode2021::Day22.parse_input(str)
+  input.each {|c| puts c}
+    AdventOfCode2021::Day22.solution1(input).should eq(39)
+  end
+
   it "day22 should work" do
     str = <<-INPUT
 on x=-20..26,y=-36..17,z=-47..7
@@ -27,7 +39,7 @@ on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
 on x=967..23432,y=45373..81175,z=27513..53682
 INPUT
     input = AdventOfCode2021::Day22.parse_input(str)
-    #pp! input
+    pp! input
     AdventOfCode2021::Day22.solution1(input).should eq(590784)
     AdventOfCode2021::Day22.solution2(input).should eq(0)
   end
