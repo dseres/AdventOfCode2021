@@ -2,7 +2,7 @@ require "./spec_helper"
 
 alias R=AdventOfCode2021::Day22::Range
 
-describe AdventOfCode2021, focus: true do
+describe AdventOfCode2021 do
   it "splitting ranges should work" do
     R.new(-10,10).split_by(R.new(-5,5)).should eq Tuple.new(R.new(-10,-6), R.new(-5,5), R.new(6,10))
     R.new(10,15).split_by(R.new(5,12)).should eq Tuple.new(R.new(10,12), R.new(13,15))
