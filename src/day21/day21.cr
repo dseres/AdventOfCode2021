@@ -28,7 +28,6 @@ module AdventOfCode2021
 
       def initialize(@position, @score = 0, @wins = 0_i64); end
 
-
       def to_s(io : IO)
         io.print "Player[ position : #{position}, score : #{score}, wins : #{wins}] "
       end
@@ -54,7 +53,7 @@ module AdventOfCode2021
         @score
       end
 
-      def wins?( win_points = 1000)
+      def wins?(win_points = 1000)
         @score >= win_points
       end
     end

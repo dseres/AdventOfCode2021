@@ -3,12 +3,12 @@ require "./*"
 module AdventOfCode2021::Day21
   class QuantumDiracDiceGame
     MAX_POINTS = 21
-    MAX_ROLL = 9
-    POSITIONS = 10
+    MAX_ROLL   =  9
+    POSITIONS  = 10
 
     struct Player
       getter position : Int8
-      getter score = 0_i8;
+      getter score = 0_i8
 
       def initialize(@position); end
 
@@ -41,7 +41,7 @@ module AdventOfCode2021::Day21
         if @current_player == 0
           @player1.do_turn roll
           @current_player = 1
-        else 
+        else
           @player2.do_turn roll
           @current_player = 0
         end
@@ -65,12 +65,11 @@ module AdventOfCode2021::Day21
       Universe.new(player1, player2)
     end
 
-
-      # dice combination will show the sum of 3 rolls how many times equal
-      # see tally function in crystal documentation
-      # the array will be {3 => 1, 4  => 3, 5 => 6, 6 => 7, 7 => 6, 8 => 3, 9 => 1}
-      # which means 5 can be rolled out with 3 dice 6 ways
-      @@roll_prevalence : Hash(Int32,Int32) =  [1, 2, 3].cartesian_product({1, 2, 3}, {1, 2, 3}).map(&.sum).tally
+    # dice combination will show the sum of 3 rolls how many times equal
+    # see tally function in crystal documentation
+    # the array will be {3 => 1, 4  => 3, 5 => 6, 6 => 7, 7 => 6, 8 => 3, 9 => 1}
+    # which means 5 can be rolled out with 3 dice 6 ways
+    @@roll_prevalence : Hash(Int32, Int32) = [1, 2, 3].cartesian_product({1, 2, 3}, {1, 2, 3}).map(&.sum).tally
 
     def perform(uni : Universe)
       @@roll_prevalence.each do |roll, count|
@@ -91,7 +90,7 @@ module AdventOfCode2021::Day21
     end
 
     def solution
-      #pp! @won1, @won2
+      # pp! @won1, @won2
       Math.max(@won1, @won2)
     end
   end

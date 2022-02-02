@@ -102,10 +102,9 @@ module AdventOfCode2021::Day19
     end
 
     def max_manhattan_distance(centers)
-        centers.cartesian_product(centers).map do |c1,c2|
-            (c1.x - c2.x).abs + (c1.y-c2.y).abs + (c1.z - c2.z).abs
-        end.max
+      centers.cartesian_product(centers).map do |c1, c2|
+        (c1.x - c2.x).abs + (c1.y - c2.y).abs + (c1.z - c2.z).abs
+      end.max
     end
-
   end
 end

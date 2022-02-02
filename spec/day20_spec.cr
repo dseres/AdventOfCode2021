@@ -12,7 +12,7 @@ describe AdventOfCode2021 do
 ..###
 INPUT
     input = AdventOfCode2021::Day20.parse_input(str)
-    code,pic = input
+    code, pic = input
     code.size.should eq 512
     AdventOfCode2021::Day20.solution1(*input).should eq(35)
     AdventOfCode2021::Day20.solution2(*input).should eq(3351)

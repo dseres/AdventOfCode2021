@@ -120,7 +120,7 @@ module AdventOfCode2021::Day19
       false
     end
 
-    private def self.get_all_rotations 
+    private def self.get_all_rotations
       rotations = [] of RotatingMatrix
       (0...4).each do |x|
         (0...4).each do |y|
@@ -129,13 +129,13 @@ module AdventOfCode2021::Day19
           end
         end
       end
-      rotations.uniq { |m| m.m}
+      rotations.uniq { |m| m.m }
     end
 
     @@all_rotations : Array(RotatingMatrix) = get_all_rotations
+
     def self.all_rotations
       @@all_rotations
     end
-
   end
 end

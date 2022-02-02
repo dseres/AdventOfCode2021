@@ -32,20 +32,20 @@ describe AdventOfCode2021 do
   it "Product of a beam and a rotating matrix should be an other beam" do
     beam = Beam.new 1, 2, 3
     (beam * RotatingMatrix.t0).should eq beam
-    (beam * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx ).should eq beam
+    (beam * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx * RotatingMatrix.tx).should eq beam
   end
 
   it "Addition of beam should be valid" do
-    b1 = Beam.new(1,2,3)
-    (b1 + b1).should eq Beam.new(2,4,6)
-    (b1 - b1).should eq Beam.new(0,0,0)
+    b1 = Beam.new(1, 2, 3)
+    (b1 + b1).should eq Beam.new(2, 4, 6)
+    (b1 - b1).should eq Beam.new(0, 0, 0)
   end
 
   it "Transformation should work on all of the beams of a scanner" do
     scanners = ScannerSet.new(File.read "./src/day19/spec_input.txt")
 
     s1 = scanners[0]
-    s2 = s1 * RotatingMatrix.t0 
+    s2 = s1 * RotatingMatrix.t0
     s1.should eq s2
 
     tx = RotatingMatrix.tx
@@ -56,21 +56,19 @@ describe AdventOfCode2021 do
   it "Scanner 0 and scanner 1 from example should overlap" do
     scanners = ScannerSet.new(File.read "./src/day19/spec_input.txt")
 
-    s0,s1 = scanners[0],scanners[1]
+    s0, s1 = scanners[0], scanners[1]
     t = RotatingMatrix.all_rotations[10]
-    
 
-
-    #puts scanners.get_common_beams(scanners[0], scanners[1])
+    # puts scanners.get_common_beams(scanners[0], scanners[1])
     t, diff, commons = scanners.get_common_beams(scanners[0], scanners[1])
     diff.should eq Beam.new(68, -1246, -43)
     commons.should eq 12
-    t.should eq RotatingMatrix.new [-1,0,0,0,1,0,0,0,-1]
+    t.should eq RotatingMatrix.new [-1, 0, 0, 0, 1, 0, 0, 0, -1]
   end
 
   it "Print out found scanner pairs of example" do
     scanners = ScannerSet.new(File.read "./src/day19/spec_input.txt")
-    s1,centers = scanners.merge_scanners
+    s1, centers = scanners.merge_scanners
     s1.beams.size.should eq 79
     scanners.max_manhattan_distance(centers).should eq 3621
     # scanners.find_pairs.each do |s1,s2,t,diff,n|
