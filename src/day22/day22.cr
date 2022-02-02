@@ -9,11 +9,69 @@ module AdventOfCode2021
       Off
     end
 
+    class Range
+      getter begin : Int32
+      getter end : Int32
+
+      def initialize(@begin, @end)
+        raise Exception.new("Bad parameters for Range : #{@begin} #{@end}") if @end < @begin
+      end
+
+      def includes?(other : Range) : Bool
+        @begin <= other.begin && other.begin <= @end && @begin <= other.end && other.end <= @end
+      end
+
+      def has_intersection?(other : Range) : Bool
+        @begin <= other.begin && other.begin <= @end || @begin <= other.end && other.end <= @end || other.begin < @begin && @end < other.end
+      end
+
+      def intersection(other : Range) : Range
+        Range.new(Math.max(@begin, other.begin), Math.min(@end, other.end))
+      end
+
+      def intersection?(other : Range) : Range | Nil
+        return nil unless has_intersection? other
+        return intersection other
+      end
+
+      def split_by(other : Range)
+        splitted = Tuple.new
+        if other.begin > Int32::MIN
+          range_before = Range.new(Int32::MIN, other.begin - 1)
+          if has_intersection? range_before
+            splitted += {intersection(range_before)}
+          end
+        end
+        if has_intersection? other
+          splitted += {intersection(other)}
+        end
+        if other.end < Int32::MAX
+          range_after = Range.new(other.end + 1, Int32::MAX)
+          if has_intersection? range_after
+            splitted += {intersection(range_after)}
+          end
+        end
+        splitted
+      end
+
+      def size
+        return @end - @begin + 1
+      end
+
+      def to_s(io : IO)
+        io << "#{@begin}..#{@end}"
+      end
+
+      def ==(other : Range)
+        @begin == other.begin && @end == other.end
+      end
+    end
+
     struct Cuboid
       property op : Operation
-      property x1 : Int32, x2 : Int32, y1 : Int32, y2 : Int32, z1 : Int32, z2 : Int32
+      property x : Range, y : Range, z : Range
 
-      def initialize(@op, @x1, @x2, @y1, @y2, @z1, @z2); end
+      def initialize(@op, @x, @y, @z); end
 
       def initialize(str : String)
         str =~ /^(on|off) x=(-?\d+)\.\.(-?\d+),y=(-?\d+)..(-?\d+),z=(-?\d+)..(-?\d+)$/
@@ -24,73 +82,49 @@ module AdventOfCode2021
         y2 = $~[5].to_i32
         z1 = $~[6].to_i32
         z2 = $~[7].to_i32
-        initialize(op, x1, x2, y1, y2, z1, z2)
+        initialize(op, Range.new(x1, x2), Range.new(y1, y2), Range.new(z1, z2))
       end
 
       def ==(other : Cuboid)
-        op == other.op && x1 == other.x1 && x2 == other.x2 && y1 == other.y1 && y2 == other.y2 && z1 == other.z1 && z2 == other.z2
+        @op == other.op && @x == other.x @y == other.y && @z == other.z
       end
 
       def is_on?
         @op == Operation::On
       end
 
-      def has_intersection?(other : Cuboid) : Bool
-        has_intersection?(@x1, @x2, other.x1, other.x2) && has_intersection?(@y1, @y2, other.y1, other.y2) && has_intersection?(@z1, @z2, other.z1, other.z2)
+      def includes?(other : Cuboid) : Bool
+        @x.includes?(other.x) && @y.includes?(other.y) && @z.includes?(other.z)
       end
 
-      private def has_intersection?(x1, x2, y1, y2)
-        x1 <= y1 && y1 <= x2 || x1 <= y2 && y2 <= x2
+      def has_intersection?(other : Cuboid) : Bool
+        @x.has_intersection?(other.x) && @y.has_intersection?(other.y) && @z.has_intersection?(other.z)
       end
 
       def intersection(other : Cuboid) : Cuboid
-        Cuboid.new(other.op, Math.max(@x1, other.x1), Math.min(@x2, other.x2), Math.max(@y1, other.y1), Math.min(@y2, other.y2), Math.max(@z1, other.z1), Math.min(@z2, other.z2))
+        Cuboid.new(other.op, @x.intersection(other.x), @y.intersection(other.y), @z.intersection(other.z))
       end
 
-      def size : Int32
-        (@x2 - @x1 + 1) * (@y2 - @y1 + 1) * (@z2 - @z1 + 1)
+      def size : Int64
+        @x.size.to_i64 * @y.size.to_i64 * @z.size.to_i64
       end
 
       def split_by(other : Cuboid) : Array(Cuboid)
         raise Exception.new("Other coboid has no intersection.") unless has_intersection? other
         splitted = [] of Cuboid
-        x_values = get_included_points(@x1, @x2, other.x1, other.x2)
-        y_values = get_included_points(@y1, @y2, other.y1, other.y2)
-        z_values = get_included_points(@z1, @z2, other.z1, other.z2)
-        pp! x_values, y_values, z_values
-        x_values.each do |x1, x2|
-          y_values.each do |y1, y2|
-            z_values.each do |z1, z2|
-              c = Cuboid.new(@op, x1, x2, y1, y2, z1, z2)
-              c.op = other.op if c.has_intersection? other
-              splitted << c
-            end
-          end
+        x_ranges = @x.split_by(other.x)
+        y_ranges = @y.split_by(other.y)
+        z_ranges = @z.split_by(other.z)
+        x_ranges.each_cartesian(y_ranges, z_ranges) do |x, y, z|
+          c = Cuboid.new(@op, x, y, z)
+          c.op = other.op if other.includes? c
+          splitted << c
         end
-        puts "Splitted cuboids are : "
-        splitted.each { |c| puts "\t#{c}" }
         splitted
       end
 
-      def get_included_points(p1, p2, q1, q2)
-        # pp! p1,p2, q1, q2
-        if p1 < q1 && q1 < p2 && p1 < q2 && q2 < p2
-          return { {p1, (q1 - 1)}, {q1, q2}, {q2 + 1, p2} }
-        elsif p1 < q1 && q1 < p2
-          return { {p1, q1 - 1}, {q1, p2} }
-        elsif p1 < q1 && q1 == p2
-          return { {p1, q1 - 1}, {q1, p2} }
-        elsif p1 < q2 && q2 < p2
-          return { {p1, q2 - 1}, {q2, p2} }
-        elsif p1 == q2 && q2 < p2
-          return { {p1, q2}, {q2 + 1, p2} }
-        else
-          return { {p1, p2} }
-        end
-      end
-
       def to_s(io : IO) : Nil
-        io << "Cuboid(#{@op} x=#{@x1}..#{@x2}, y=#{@y1}..#{@y2}, z=#{@z1}..#{@z2})"
+        io << "Cuboid(#{@op} x=#{@x}, y=#{@y}, z=#{@z})"
       end
     end
 
@@ -99,18 +133,16 @@ module AdventOfCode2021
       getter cuboids : Array(Cuboid)
 
       def initialize(size = 50)
-        @init_cuboid = Cuboid.new(Operation::Off, -size, size, -size, size, -size, size)
+        @init_cuboid = Cuboid.new(Operation::Off, Range.new(-size, size), Range.new(-size, size), Range.new(-size, size))
         @cuboids = [@init_cuboid]
       end
 
       def add(new_cuboid : Cuboid)
-        puts "Adding new cuboid #{new_cuboid}"
         return unless init_cuboid.has_intersection? new_cuboid
         new_cuboid = init_cuboid.intersection new_cuboid
         new_cuboids = [] of Cuboid
         cuboids.each do |cuboid|
           if cuboid.has_intersection? new_cuboid
-            puts "Splitting cuboid #{cuboid} with new_cuboid #{new_cuboid}."
             new_cuboids.concat cuboid.split_by new_cuboid
           else
             new_cuboids << cuboid
@@ -119,7 +151,7 @@ module AdventOfCode2021
         @cuboids = new_cuboids
       end
 
-      def count_on : Int32
+      def count_on : Int64
         cuboids.select(&.is_on?).sum(&.size)
       end
     end
@@ -128,7 +160,7 @@ module AdventOfCode2021
       input.lines.map { |line| Cuboid.new(line) }
     end
 
-    def solution1(cuboids : Array(Cuboid)) : Int32
+    def solution1(cuboids : Array(Cuboid)) : Int64
       generator = Generator.new
       cuboids.each do |c|
         generator.add c
@@ -136,8 +168,12 @@ module AdventOfCode2021
       generator.count_on
     end
 
-    def solution2(cuboids : Array(Cuboid)) : Int32
-      0
+    def solution2(cuboids : Array(Cuboid)) : Int64
+      generator = Generator.new(size = Int32::MAX)
+      cuboids.each do |c|
+        generator.add c
+      end
+      generator.count_on
     end
 
     def main
