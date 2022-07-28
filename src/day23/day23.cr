@@ -94,6 +94,7 @@ module AdventOfCode2021
             end
           end
         end
+        @amphipodas = @amphipodas.sort { |a,b| a.type <=> b.type }
         rooms.each { |line| puts "#{line}"}
         amphipodas.each { |amp| puts "#{amp}"}
       end
