@@ -1,5 +1,5 @@
 name: advent_of_code_2021
-version: 0.1.0
+version: 0.2.0
 
 authors:
   - dseres <dseres001@gmail.com>
@@ -10,6 +10,6 @@ targets:
 
     
 
-crystal: 1.2.2
+crystal: 1.5.0
 
 license: MIT

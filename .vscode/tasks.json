@@ -2,17 +2,18 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "shards",
-			"command": "build",
-			"args": [
-				"--release"
-			],
-			"problemMatcher": [],
-			"label": "Shards: build",
+			"label": "Build with shards",
+			"type": "shell",
+			"command": "shards build --release",
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			}
+			},
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared"
+			},
+			"problemMatcher": []
 		}
 	]
 }

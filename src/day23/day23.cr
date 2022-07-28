@@ -53,10 +53,14 @@ module AdventOfCode2021
     end
 
     class Burrow
-      getter rooms : Array(Array(Room))
-      getter amphipodas : Array(Amphipoda)
+      getter rooms = [] of Array(RoomType);
+      getter amphipodas = [] of Amphipoda;
 
       def initialize(@rooms, @amphipodas); end
+
+      def initialize(str : String)
+        parse_input str
+      end
 
       def solved? : Bool
         false
@@ -64,10 +68,36 @@ module AdventOfCode2021
       
       def to_s(io : IO)
       end
-    end
 
-    def parse_input(input : String) : Array(String)
-      input.lines
+      private def parse_input(input : String) 
+        # puts "Input: #{input.lines}"
+        lines = input.lines.map &.gsub(' ', '#').ljust(13, '#')
+        #lines.each { |line| puts line }
+        k = 0
+        rooms = lines.map_with_index do |line,i|
+          line.chars.map_with_index do |c,j|
+            case c
+            when '#'
+              RoomType::Wall
+            when '.'
+              case j
+              when 3,5,7,9
+                RoomType::Hallway_No_Stop
+              else
+              RoomType::Hallway
+              end
+            when 'A','B','C','D'
+              amphipodas<<Amphipoda.new(AmphipodaType::Amber + (c-'A'), {i, j} )
+              room_type = RoomType::Room_A + k
+              k = (k+1)%4
+              room_type
+            end
+          end
+        end
+        rooms.each { |line| puts "#{line}"}
+        amphipodas.each { |amp| puts "#{amp}"}
+      end
+
     end
 
     def solution1(input) : Int32
@@ -79,7 +109,8 @@ module AdventOfCode2021
     end
 
     def main
-      input = parse_input File.read "./src/day#{DAY}/input.txt"
+      input = Burrow.new(File.read "./src/day#{DAY}/input.txt")
+
       puts "Solutions of day#{DAY} : #{solution1 input} #{solution2 input}"
     end
   end
