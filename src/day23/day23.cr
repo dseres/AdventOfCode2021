@@ -45,13 +45,13 @@ module AdventOfCode2021
         new_positions = [] of Tuple(Int32,Int32)
         steps = [ {-1,0}, {1,0}, {0,-1}, {0,1} ]
         steps.each do | x_step, y_step|
-          new_pos_x,new_pos_y = { position[0] + x_step, position[1].y_step}
+          new_pos = { @position[0] + x_step, @position[1].y_step}
           #TODO : check new position valid 
-          if !prev_position.nil? && new_pos_x == prev_position[0] && new_pos_y == prev_position[1]
+          if !prev_position.nil? && new_pos == @prev_position
             # skip stepping back
-          elsif burrow.rooms[@starting_position[0]][@starting_position[1]] == RoomType::Wall
+          elsif get_room_type(burrow, new_pos) == RoomType::Wall
             # skip walls
-          elsif burrow.amphipodas.any? { |amp| amp.position == {new_pos_x, new_pos_y} }
+          elsif burrow.amphipodas.any? { |amp| amp.position == new_pos }
             # skip tiles having an ampiphoda
           else 
             # step seems valid
@@ -65,6 +65,10 @@ module AdventOfCode2021
             # find_possible_new_pos burrow
           end           
         end
+      end
+
+      def get_room_type(burrow : Burrow, pos_x : Int32, pos_y : Int32) : RoomType
+        burrow.rooms[ pos_x][pos_y]
       end
     end
 
