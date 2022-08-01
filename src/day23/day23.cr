@@ -25,8 +25,12 @@ module AdventOfCode2021
       getter type : AmphipodaType
       getter used_energy = 0
       getter position : Tuple(Int32, Int32)
-
-      def initialize(@type, @position); end
+      getter starting_position : Tuple(Int32, Int32)
+      getter prev_position : Tuple(Int32, Int32) | Nil
+      
+      def initialize(@type, @position); 
+        @starting_position = @position
+      end
 
       @@energies : StaticArray(Int32,4) = StaticArray[1, 10, 100, 1000]
       def energy : Int32
@@ -37,6 +41,31 @@ module AdventOfCode2021
         RoomType.new(@type.to_i + RoomType::Room_A.to_i)
       end
 
+      def find_possible_new_pos( burrow : Burrow) : Array(Tuple(Int32,Int32))
+        new_positions = [] of Tuple(Int32,Int32)
+        steps = [ {-1,0}, {1,0}, {0,-1}, {0,1} ]
+        steps.each do | x_step, y_step|
+          new_pos_x,new_pos_y = { position[0] + x_step, position[1].y_step}
+          #TODO : check new position valid 
+          if !prev_position.nil? && new_pos_x == prev_position[0] && new_pos_y == prev_position[1]
+            # skip stepping back
+          elsif burrow.rooms[@starting_position[0]][@starting_position[1]] == RoomType::Wall
+            # skip walls
+          elsif burrow.amphipodas.any? { |amp| amp.position == {new_pos_x, new_pos_y} }
+            # skip tiles having an ampiphoda
+          else 
+            # step seems valid
+            # TODO : check next step recursively
+            # @prev_position = @position
+            # @used_energy += @@energies[@type]
+            # @position = {new_pos_x, new_pos_y}
+            # if burrow.rooms[@position[0]][@position[1]] == RoomType::Hallway
+            #   new_positions << @position
+            # end
+            # find_possible_new_pos burrow
+          end           
+        end
+      end
     end
 
     struct Room
