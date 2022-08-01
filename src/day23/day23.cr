@@ -99,20 +99,19 @@ module AdventOfCode2021
         amphipodas.each { |amp| puts "#{amp}"}
       end
 
-    end
+      def solve1() 
+        0
+      end
 
-    def solution1(input) : Int32
-      0
-    end
-
-    def solution2(input) : Int32
-      0
+      def solve2() 
+        0
+      end
     end
 
     def main
-      input = Burrow.new(File.read "./src/day#{DAY}/input.txt")
+      burrow = Burrow.new(File.read "./src/day#{DAY}/input.txt")
 
-      puts "Solutions of day#{DAY} : #{solution1 input} #{solution2 input}"
+      puts "Solutions of day#{DAY} : #{burrow.solve1} #{burrow.solve1}"
     end
   end
 end
