@@ -22,13 +22,14 @@ module AdventOfCode2021
     end
 
     struct Amphipoda
+      getter id : Int32;
       getter type : AmphipodaType
       getter used_energy = 0
       getter position : Tuple(Int32, Int32)
       getter starting_position : Tuple(Int32, Int32)
       getter prev_position : Tuple(Int32, Int32) | Nil
       
-      def initialize(@type, @position); 
+      def initialize(@id, @type, @position); 
         @starting_position = @position
       end
 
@@ -46,14 +47,8 @@ module AdventOfCode2021
         steps = [ {-1,0}, {1,0}, {0,-1}, {0,1} ]
         steps.each do | x_step, y_step|
           new_pos = { @position[0] + x_step, @position[1].y_step}
-          #TODO : check new position valid 
-          if !prev_position.nil? && new_pos == @prev_position
-            # skip stepping back
-          elsif get_room_type(burrow, new_pos) == RoomType::Wall
-            # skip walls
-          elsif burrow.amphipodas.any? { |amp| amp.position == new_pos }
-            # skip tiles having an ampiphoda
-          else 
+          if is_new_pos_valid?(new_pos ) 
+        
             # step seems valid
             # TODO : check next step recursively
             # @prev_position = @position
@@ -65,6 +60,13 @@ module AdventOfCode2021
             # find_possible_new_pos burrow
           end           
         end
+      end
+
+      private def is_new_pos_valid?(new_pos ) : Bool
+        !( !prev_position.nil? && new_pos == @prev_position #stepping back
+            or get_room_type(burrow, new_pos) == RoomType::Wall # skip walls
+            or burrow.amphipodas.any? { |amp| amp.position == new_pos && amp.id != @id }  # skip tiles having an ampiphoda
+            )
       end
 
       def get_room_type(burrow : Burrow, pos_x : Int32, pos_y : Int32) : RoomType
@@ -106,30 +108,33 @@ module AdventOfCode2021
         # puts "Input: #{input.lines}"
         lines = input.lines.map &.gsub(' ', '#').ljust(13, '#')
         #lines.each { |line| puts line }
-        k = 0
         rooms = lines.map_with_index do |line,i|
           line.chars.map_with_index do |c,j|
-            case c
-            when '#'
-              RoomType::Wall
-            when '.'
-              case j
-              when 3,5,7,9
-                RoomType::Hallway_No_Stop
-              else
-              RoomType::Hallway
-              end
-            when 'A','B','C','D'
-              amphipodas<<Amphipoda.new(AmphipodaType::Amber + (c-'A'), {i, j} )
-              room_type = RoomType::Room_A + k
-              k = (k+1)%4
-              room_type
-            end
+            parse_room_char(c,i,j)
           end
         end
         @amphipodas = @amphipodas.sort { |a,b| a.type <=> b.type }
         rooms.each { |line| puts "#{line}"}
         amphipodas.each { |amp| puts "#{amp}"}
+      end
+
+      private def parse_room_char(c , i , j) : RoomType
+        case c
+        when '#'
+          return RoomType::Wall
+        when '.'
+          case j
+          when 3,5,7,9
+            return RoomType::Hallway_No_Stop
+          else
+            return RoomType::Hallway
+          end
+        when 'A','B','C','D'
+          amphipodas<<Amphipoda.new(amphipodas.size, AmphipodaType::Amber + (c-'A'), {i, j} )
+          room_type = RoomType::Room_A + ( j - 3) // 2 # j could be 3,5,7,9
+          return room_type
+        end
+        return RoomType::Wall
       end
 
       def solve1() 
