@@ -1,10 +1,9 @@
 require "./spec_helper"
 
-alias Burrow=AdventOfCode2021::Day23::Burrow;
-
+alias Burrow = AdventOfCode2021::Day23::Burrow
 describe AdventOfCode2021, focus: true do
   it "day23 should work" do
-  input = <<-INPUT
+    input = <<-INPUT
 #############
 #...........#
 ###B#C#B#D###

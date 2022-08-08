@@ -1,10 +1,8 @@
 require "./spec_helper"
 
-alias SailfishNumber=AdventOfCode2021::Day18::SailfishNumber
+alias SailfishNumber = AdventOfCode2021::Day18::SailfishNumber
 
 describe AdventOfCode2021 do
-
-
   it "parsing of sailfish numbers as a tree structure should give the input" do
     input1 = "[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]"
     sn1 = SailfishNumber.new input1
@@ -27,35 +25,34 @@ describe AdventOfCode2021 do
     sn2 = SailfishNumber.new "[[3, 4], 5]"
     sn3 = SailfishNumber.new "[[1, 2], [[3, 4], 5]]"
     (sn1 + sn2).should eq(sn3)
-
   end
 
   it "exploding pairs (reducing) of SailfishNumber examples should work" do
     sn = SailfishNumber.new("[[[[[9,8],1],2],3],4]")
-    sn.reduce.should eq (SailfishNumber.new("[[[[0,9],2],3],4]"))
+    sn.reduce.should eq(SailfishNumber.new("[[[[0,9],2],3],4]"))
 
     sn = SailfishNumber.new("[7,[6,[5,[4,[3,2]]]]]")
-    sn.reduce.should eq (SailfishNumber.new("[7,[6,[5,[7,0]]]]"))
+    sn.reduce.should eq(SailfishNumber.new("[7,[6,[5,[7,0]]]]"))
 
     sn = SailfishNumber.new("[[6,[5,[4,[3,2]]]],1]")
-    sn.reduce.should eq (SailfishNumber.new("[[6,[5,[7,0]]],3]"))
+    sn.reduce.should eq(SailfishNumber.new("[[6,[5,[7,0]]],3]"))
 
     sn = SailfishNumber.new("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
-    sn.reduce.should eq (SailfishNumber.new("[[3,[2,[8,0]]],[9,[5,[7,0]]]]"))  
+    sn.reduce.should eq(SailfishNumber.new("[[3,[2,[8,0]]],[9,[5,[7,0]]]]"))
   end
-  
+
   it "splitting should work" do
     sn = SailfishNumber.new("[11,1]")
-    sn.reduce.should eq (SailfishNumber.new("[[5,6],1]"))
+    sn.reduce.should eq(SailfishNumber.new("[[5,6],1]"))
 
     sn = SailfishNumber.new("[1,18]")
-    sn.reduce.should eq (SailfishNumber.new("[1,[9,9]]"))
+    sn.reduce.should eq(SailfishNumber.new("[1,[9,9]]"))
 
     sn = SailfishNumber.new("[1,11]")
-    sn.reduce.should eq (SailfishNumber.new("[1,[5,6]]"))
+    sn.reduce.should eq(SailfishNumber.new("[1,[5,6]]"))
 
     sn = SailfishNumber.new("[1,9]")
-    sn.reduce.should eq (SailfishNumber.new("[1,9]"))
+    sn.reduce.should eq(SailfishNumber.new("[1,9]"))
   end
 
   it "addition example should work" do
@@ -95,16 +92,15 @@ INPUT
 INPUT
     numbers = AdventOfCode2021::Day18.parse_input(str)
     numbers.sum.should eq(SailfishNumber.new("[[[[5,0],[7,4]],[5,5]],[6,6]]"))
-    
   end
 
   it "example from reddit should work" do
     (SailfishNumber.new("[[[[7,0],[7,7]],[[7,7],[7,8]]],[[[7,7],[8,8]],[[7,7],[8,7]]]]") \
       + SailfishNumber.new("[7,[5,[[3,8],[1,4]]]]")).should \
-      eq(SailfishNumber.new("[[[[7,7],[7,8]],[[9,5],[8,7]]],[[[6,8],[0,8]],[[9,9],[9,0]]]]"))
+        eq(SailfishNumber.new("[[[[7,7],[7,8]],[[9,5],[8,7]]],[[[6,8],[0,8]],[[9,9],[9,0]]]]"))
   end
 
-  it "first complex example of day18 should work"  do
+  it "first complex example of day18 should work" do
     (SailfishNumber.new("[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]") + SailfishNumber.new("[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]")).should eq SailfishNumber.new("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]")
     (SailfishNumber.new("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]") + SailfishNumber.new("[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]")).should eq SailfishNumber.new("[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]")
     (SailfishNumber.new("[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]") + SailfishNumber.new("[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]")).should eq SailfishNumber.new("[[[[7,0],[7,7]],[[7,7],[7,8]]],[[[7,7],[8,8]],[[7,7],[8,7]]]]")
@@ -116,8 +112,8 @@ INPUT
     (SailfishNumber.new("[[[[7,7],[7,7]],[[8,7],[8,7]]],[[[7,0],[7,7]],9]]") + SailfishNumber.new("[[[[4,2],2],6],[8,7]]")).should eq SailfishNumber.new("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]")
   end
 
-  it "complex examples of day18 should work"  do
-      str = <<-INPUT
+  it "complex examples of day18 should work" do
+    str = <<-INPUT
 [[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
 [7,[[[3,7],[4,3]],[[6,3],[8,8]]]]
 [[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]
@@ -131,7 +127,7 @@ INPUT
 INPUT
     numbers = AdventOfCode2021::Day18.parse_input(str)
     sum = SailfishNumber.new("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]")
-    #puts numbers.sum
+    # puts numbers.sum
     numbers.sum.should eq(sum)
     AdventOfCode2021::Day18.solution1(numbers).should eq(3488)
 
@@ -165,7 +161,7 @@ INPUT
 [[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
 [[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]
 INPUT
-    numbers = AdventOfCode2021::Day18.parse_input(str)  
-    AdventOfCode2021::Day18.solution2(numbers).should eq(3993)  
+    numbers = AdventOfCode2021::Day18.parse_input(str)
+    AdventOfCode2021::Day18.solution2(numbers).should eq(3993)
   end
 end

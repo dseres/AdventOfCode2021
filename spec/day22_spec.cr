@@ -1,22 +1,22 @@
 require "./spec_helper"
 
-alias R=AdventOfCode2021::Day22::Range
+alias R = AdventOfCode2021::Day22::Range
 
 describe AdventOfCode2021 do
   it "splitting ranges should work" do
-    R.new(-10,10).split_by(R.new(-5,5)).should eq Tuple.new(R.new(-10,-6), R.new(-5,5), R.new(6,10))
-    R.new(10,15).split_by(R.new(5,12)).should eq Tuple.new(R.new(10,12), R.new(13,15))
-    R.new(10,15).split_by(R.new(12,20)).should eq Tuple.new(R.new(10,11), R.new(12,15))
-    R.new(10,20).split_by(R.new(10,15)).should eq Tuple.new(R.new(10,15), R.new(16,20))
-    R.new(10,20).split_by(R.new(15,20)).should eq Tuple.new(R.new(10,14), R.new(15,20))
-    R.new(10,20).split_by(R.new(21,22)).should eq Tuple.new(R.new(10,20))
-    R.new(10,20).split_by(R.new(0,9)).should eq Tuple.new(R.new(10,20))
-    R.new(10,20).split_by(R.new(20,22)).should eq Tuple.new(R.new(10,19), R.new(20,20))
-    R.new(10,20).split_by(R.new(0,10)).should eq Tuple.new(R.new(10,10), R.new(11,20))
-    R.new(10,20).split_by(R.new(10,20)).should eq Tuple.new(R.new(10,20))
-    R.new(0,0).split_by(R.new(0,0)).should eq Tuple.new(R.new(0,0))
-    R.new(2,2).split_by(R.new(2,2)).should eq Tuple.new(R.new(2,2))
-    R.new(10,12).split_by(R.new(2,13)).should eq Tuple.new(R.new(10,12))
+    R.new(-10, 10).split_by(R.new(-5, 5)).should eq Tuple.new(R.new(-10, -6), R.new(-5, 5), R.new(6, 10))
+    R.new(10, 15).split_by(R.new(5, 12)).should eq Tuple.new(R.new(10, 12), R.new(13, 15))
+    R.new(10, 15).split_by(R.new(12, 20)).should eq Tuple.new(R.new(10, 11), R.new(12, 15))
+    R.new(10, 20).split_by(R.new(10, 15)).should eq Tuple.new(R.new(10, 15), R.new(16, 20))
+    R.new(10, 20).split_by(R.new(15, 20)).should eq Tuple.new(R.new(10, 14), R.new(15, 20))
+    R.new(10, 20).split_by(R.new(21, 22)).should eq Tuple.new(R.new(10, 20))
+    R.new(10, 20).split_by(R.new(0, 9)).should eq Tuple.new(R.new(10, 20))
+    R.new(10, 20).split_by(R.new(20, 22)).should eq Tuple.new(R.new(10, 19), R.new(20, 20))
+    R.new(10, 20).split_by(R.new(0, 10)).should eq Tuple.new(R.new(10, 10), R.new(11, 20))
+    R.new(10, 20).split_by(R.new(10, 20)).should eq Tuple.new(R.new(10, 20))
+    R.new(0, 0).split_by(R.new(0, 0)).should eq Tuple.new(R.new(0, 0))
+    R.new(2, 2).split_by(R.new(2, 2)).should eq Tuple.new(R.new(2, 2))
+    R.new(10, 12).split_by(R.new(2, 13)).should eq Tuple.new(R.new(10, 12))
   end
 
   it "smaller example of day22 should work" do
@@ -125,6 +125,4 @@ INPUT
     input = AdventOfCode2021::Day22.parse_input(str)
     AdventOfCode2021::Day22.solution2(input).should eq(2758514936282235)
   end
-
-
 end
