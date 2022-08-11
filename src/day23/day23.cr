@@ -63,15 +63,14 @@ module AdventOfCode2021
           new_pos = {@position[0] + x, @position[1] + y}
           if is_new_pos_valid?(burrow, new_pos)
             puts "new_pos is valid: #{new_pos}"
+            increase_energy
             # step seems valid
-            # TODO : check next step recursively
-            # @prev_position = @position
-            # @used_energy += @@energies[@type]
-            # @position = {new_pos_x, new_pos_y}
-            # if burrow.rooms[@position[0]][@position[1]] == RoomType::Hallway
-            #   new_positions << @position
-            # end
-            # find_possible_new_pos burrow
+            if is_new_pos_valid?(burrow, new_pos)
+              next_amps << self.clone new_pos
+            end
+            @prev_position = @position
+            @position = new_pos
+            find_possible_new_pos burrow
           end
         end
         next_amps
@@ -81,12 +80,20 @@ module AdventOfCode2021
         !(!prev_position.nil? && new_pos == @prev_position || get_room_type(burrow, new_pos) == RoomType::Wall || burrow.amphipodas.any? { |amp| amp.position == new_pos && amp.id != @id })
       end
 
+      private def is_new_pos_step?(burrow : Burrow, new_pos) : Bool
+        get_room_type(burrow, new_pos) == RoomType::Hallway && RoomType::Room_A..RoomType::Room_D === get_room_type(burrow, @starting_position) || RoomType::Room_A..RoomType::Room_D === get_room_type(burrow, new_pos) && getter(burrow, @starting_position) == RoomType::Hallway_No_Stop
+      end
+
       def get_room_type(burrow : Burrow, pos_x : Int32, pos_y : Int32) : RoomType
         burrow.rooms[pos_x][pos_y]
       end
 
-      def get_room_type(burrow : Burrow, pos : Tuple(Int32, Int32)) : RoomType
+      def get_room_type(burrow : Burrow, pos : Tuple(Int32, Int32) = @position) : RoomType
         get_room_type burrow, pos[0], pos[1]
+      end
+
+      private def increase_energy
+        @used_energy += @@energies[ @type.to_i]
       end
     end
 
@@ -100,7 +107,7 @@ module AdventOfCode2021
       end
 
       def solved?(amps : Array(Amphipoda)) : Bool
-        false
+        amps.all? { |a| a.get_room_type(self) == RoomType::Room_A + a.type.to_i}
       end
 
       def to_s(io : IO)
