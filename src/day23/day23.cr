@@ -48,52 +48,20 @@ module AdventOfCode2021
         Amphipoda.new(@id, @type, @position, @used_energy, @starting_position, @prev_position)
       end
 
-      def clone(new_pos) : Amphipoda
-        Amphipoda.new(@id, @type, new_pos, @used_energy + @@energies[@type.to_i], @starting_position, @prev_position)
+      def step(new_pos) : Amphipoda
+        Amphipoda.new(@id, @type, new_pos, next_energy, @starting_position, @position)
+      end
+
+      def step_for_next_round(new_pos) : Amphipoda
+        Amphipoda.new(@id, @type, new_pos, next_energy, new_pos, nil)
       end
 
       def room_to_occupy : RoomType
         RoomType.new(@type.to_i + RoomType::Room_A.to_i)
       end
 
-      def find_possible_new_pos(burrow : Burrow) : Array(Amphipoda)
-        next_amps = [] of Amphipoda
-        steps = [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
-        steps.each do |x, y|
-          new_pos = {@position[0] + x, @position[1] + y}
-          if is_new_pos_valid?(burrow, new_pos)
-            puts "new_pos is valid: #{new_pos}"
-            increase_energy
-            # step seems valid
-            if is_new_pos_valid?(burrow, new_pos)
-              next_amps << self.clone new_pos
-            end
-            @prev_position = @position
-            @position = new_pos
-            find_possible_new_pos burrow
-          end
-        end
-        next_amps
-      end
-
-      private def is_new_pos_valid?(burrow : Burrow, new_pos) : Bool
-        !(!prev_position.nil? && new_pos == @prev_position || get_room_type(burrow, new_pos) == RoomType::Wall || burrow.amphipodas.any? { |amp| amp.position == new_pos && amp.id != @id })
-      end
-
-      private def is_new_pos_step?(burrow : Burrow, new_pos) : Bool
-        get_room_type(burrow, new_pos) == RoomType::Hallway && RoomType::Room_A..RoomType::Room_D === get_room_type(burrow, @starting_position) || RoomType::Room_A..RoomType::Room_D === get_room_type(burrow, new_pos) && getter(burrow, @starting_position) == RoomType::Hallway_No_Stop
-      end
-
-      def get_room_type(burrow : Burrow, pos_x : Int32, pos_y : Int32) : RoomType
-        burrow.rooms[pos_x][pos_y]
-      end
-
-      def get_room_type(burrow : Burrow, pos : Tuple(Int32, Int32) = @position) : RoomType
-        get_room_type burrow, pos[0], pos[1]
-      end
-
-      private def increase_energy
-        @used_energy += @@energies[ @type.to_i]
+      def next_energy
+        @used_energy + @@energies[ @type.to_i]
       end
     end
 
@@ -107,7 +75,7 @@ module AdventOfCode2021
       end
 
       def solved?(amps : Array(Amphipoda)) : Bool
-        amps.all? { |a| a.get_room_type(self) == RoomType::Room_A + a.type.to_i}
+        amps.all? { |a| get_room_type(a.position) == a.room_to_occupy}
       end
 
       def to_s(io : IO)
@@ -152,16 +120,63 @@ module AdventOfCode2021
       def check_next_movements(amps)
         amps.each_with_index do |a, i|
           puts "check_next_movement of #{a}"
-          a.find_possible_new_pos(self).each do |b|
+          find_possible_new_pos(a).each do |b|
             amps2 = amps.clone
             amps2[i] = b
             if solved?(amps2)
               solution1 << amps2
             else
-              # check_next_movements amps2
+              check_next_movements amps2
             end
           end
         end
+      end
+
+
+      def find_possible_new_pos(amp : Amphipoda) : Array(Amphipoda)
+        next_amps = [] of Amphipoda
+        steps = [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
+        steps.each do |x, y|
+          new_pos = {amp.position[0] + x, amp.position[1] + y}
+          if is_new_pos_valid?(amp, new_pos)
+            new_amp = amp.step(new_pos)
+            if is_new_pos_step?( amp, new_pos)
+              puts "new pos found: #{new_pos}"
+              next_amps << amp.step_for_next_round(new_pos)
+            end
+            next_amps += find_possible_new_pos(new_amp)
+          end
+        end
+        next_amps
+      end
+
+      private def is_new_pos_valid?(amp : Amphipoda, new_pos) : Bool
+        !(!amp.prev_position.nil? && new_pos == amp.prev_position || get_room_type(new_pos) == RoomType::Wall || amphipodas.any? { |a| a.position == new_pos && a.id != amp.id }) && ( !is_room?(new_pos) || room_has_proper_amphipods(new_pos))
+      end
+
+      private def is_new_pos_step?(amp : Amphipoda, new_pos) : Bool
+        is_hallway?(new_pos) && is_room?(amp.starting_position) || is_room?(new_pos) && is_hallway?(amp.starting_position)
+      end
+
+      def get_room_type(pos_x : Int32, pos_y : Int32) : RoomType
+        @rooms[pos_x][pos_y]
+      end
+
+      def get_room_type(pos : Tuple(Int32, Int32) = @position) : RoomType
+        get_room_type pos[0], pos[1]
+      end
+
+      def is_hallway?(pos)
+        get_room_type(pos) == RoomType::Hallway
+      end
+
+      def is_room?(pos)
+        rt = get_room_type(pos)
+        return rt == RoomType::Room_A || rt == RoomType::Room_B || rt == RoomType::Room_C || rt == RoomType::Room_D
+      end
+
+      def room_has_proper_amphipods(pos)
+        is_room?(pos) && amphipodas.none?{ |amp| amp.room_to_occupy != get_room_type(pos) && get_room_type(amp.position) == get_room_type(pos)}
       end
 
       def solve2
