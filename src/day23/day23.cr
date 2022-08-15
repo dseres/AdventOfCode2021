@@ -220,7 +220,7 @@ module AdventOfCode2021
                 @solutions1 << burrow
               else
                 min_used_energy = @solutions1.min_of? &.used_energy
-                #pp! min_used_energy, burrow.used_energy, @solutions1.size
+                pp! min_used_energy, burrow.used_energy, @solutions1.size                
                 if min_used_energy.nil? || burrow.used_energy < min_used_energy 
                   burrow.check_next_movements
                 end
@@ -279,9 +279,10 @@ module AdventOfCode2021
         if tile.is_hallway? && starting_tile.is_room?
           return true
         elsif tile.is_room? && starting_tile.is_hallway? 
-          other_room = get_tile({ 3, amp.position[1]}) #rooms have coordinates x = 2 or x = 3 
           #pp! other_room
-          return amp.position[0] == 3 || amp.position[0] == 2 && !other_room.amp.nil? # ampiphod can stop only on bottoem
+          return true if amp.position[0] == 3  # ampiphod can stop only on bottoem
+          other_room = get_tile({ 3, amp.position[1]}) #rooms have coordinates x = 2 or x = 3 
+          return other_room.has_good_amphipod? 
         end
         return false
       end
