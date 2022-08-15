@@ -5,6 +5,7 @@ module AdventOfCode2021
     DAY = 23
 
     enum RoomType
+      Empty
       Wall
       Hallway
       Hallway_No_Stop
@@ -21,13 +22,15 @@ module AdventOfCode2021
       Desert
     end
 
-    struct Amphipoda
+    class Amphipoda
       getter id : Int32
       getter type : AmphipodaType
       getter position : Tuple(Int32, Int32)
       getter used_energy : Int32
       getter starting_position : Tuple(Int32, Int32)
       getter prev_position : Tuple(Int32, Int32) | Nil
+
+      @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
       def initialize(@id, @type, @position)
         @used_energy = 0
@@ -38,37 +41,108 @@ module AdventOfCode2021
       def initialize(@id, @type, @position, @used_energy, @starting_position, @prev_position)
       end
 
-      @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
+      def to_s( io : IO ) 
+        io<<"#{'A' + type.to_i} id: #{@id} position: #{@position}, used_energy: #{@used_energy}"
+      end
 
       def energy : Int32
         @@energies[@type.to_i]
       end
 
+
       def clone : Amphipoda
         Amphipoda.new(@id, @type, @position, @used_energy, @starting_position, @prev_position)
       end
 
-      def step(new_pos) : Amphipoda
-        Amphipoda.new(@id, @type, new_pos, next_energy, @starting_position, @position)
+      def step(new_pos) 
+        @prev_position = @position
+        @position = new_pos
+        @used_energy + @@energies[ @type.to_i]
       end
 
-      def step_for_next_round(new_pos) : Amphipoda
-        Amphipoda.new(@id, @type, new_pos, next_energy, new_pos, nil)
+      def next_round 
+        @prev_position = nil
+        @starting_position = @position
       end
 
       def room_to_occupy : RoomType
         RoomType.new(@type.to_i + RoomType::Room_A.to_i)
       end
 
-      def next_energy
-        @used_energy + @@energies[ @type.to_i]
+      def next_positions : Array(Tuple(Int32,Int32))
+        [{-1, 0}, {1, 0}, {0, -1}, {0, 1}].map{|x,y| {@position[0] + x, @position[1] + y} }.select &.!=(@prev_position)
       end
+
+    end
+
+    struct Tile
+      property type : RoomType = RoomType::Wall
+      property amp : Amphipoda|Nil = nil
+
+      def initialize(@type, @amp); end
+
+      def initialize(c : Char, id : Int32, pos_x : Int32 , pos_y : Int32)
+        case c
+        when ' '
+          @type = RoomType::Empty
+        when '#'
+          @type = RoomType::Wall
+        when '.'
+          case pos_y
+          when 3, 5, 7, 9
+            @type = RoomType::Hallway_No_Stop
+          else
+            @type = RoomType::Hallway
+          end
+        when 'A', 'B', 'C', 'D'
+          @type = RoomType::Room_A + (pos_y - 3) // 2 # x could be 3,5,7,9
+          @amp = Amphipoda.new(id, AmphipodaType::Amber + (c - 'A'), {pos_x, pos_y})
+        end
+      end
+
+      def to_s(io : IO) : Nil
+        amp = @amp
+        if amp.nil?
+          case @type
+          when RoomType::Empty
+            io<<' '
+          when RoomType::Wall
+            io<<'#'
+          else
+            io<<'.'
+          end
+        else
+          io<<('A' + amp.type.to_i)
+        end
+      end
+
+      def is_room?
+        return @type == RoomType::Room_A || @type == RoomType::Room_B || @type == RoomType::Room_C || @type == RoomType::Room_D
+      end
+
+      def is_hallway?
+        return @type == RoomType::Hallway
+      end
+
+      def is_hallway_no_stop?
+        return @type == RoomType::Hallway_No_Stop
+      end
+
+      def is_wall?
+        return @type == RoomType::Wall
+      end
+
+      def has_no_bad_amphipod?
+        amp = @amp
+        amp.nil? || amp.room_to_occupy == type
+      end
+
     end
 
     class Burrow
-      getter rooms = [] of Array(RoomType)
+      getter tiles = [] of Array(Tile)
       getter amphipodas = [] of Amphipoda
-      getter solution1 = [] of Array(Amphipoda)
+      getter solutions1 = [] of Burrow
 
       def initialize(str : String)
         parse_input str
@@ -78,43 +152,38 @@ module AdventOfCode2021
         amps.all? { |a| get_room_type(a.position) == a.room_to_occupy}
       end
 
-      def to_s(io : IO)
-      end
-
       private def parse_input(input : String)
-        # puts "Input: #{input.lines}"
-        @rooms = input.lines.map_with_index do |line, i|
-          line.gsub(' ', '#').ljust(13, '#').chars.map_with_index do |c, j|
-            parse_room_char(c, i, j)
+        @tiles = input.lines.map_with_index do |line, x|
+          line.ljust(13, ' ').chars.map_with_index do |c, y|
+            parse_tile c,x,y
           end
         end
-        @amphipodas = @amphipodas.sort { |a, b| a.type <=> b.type }
-        @rooms.each { |line| puts "#{line}" }
-        @amphipodas.each { |amp| puts "#{amp}" }
       end
 
-      private def parse_room_char(c, i, j) : RoomType
-        case c
-        when '#'
-          return RoomType::Wall
-        when '.'
-          case j
-          when 3, 5, 7, 9
-            return RoomType::Hallway_No_Stop
-          else
-            return RoomType::Hallway
-          end
-        when 'A', 'B', 'C', 'D'
-          amphipodas << Amphipoda.new(amphipodas.size, AmphipodaType::Amber + (c - 'A'), {i, j})
-          room_type = RoomType::Room_A + (j - 3) // 2 # j could be 3,5,7,9
-          return room_type
+      private def parse_tile(c, x, y)
+        r = Tile.new(c, @amphipodas.size, x, y)
+        amp = r.amp
+        if !amp.nil?
+          @amphipodas<<amp
         end
-        return RoomType::Wall
+        r
+      end
+
+      def to_s(io : IO) : Nil
+        tiles.each do |line|
+          line.each { |r| io << r }
+          io<<"\n"
+        end
+        amphipodas.each do |amp| 
+          io << amp
+          io<<"\n"
+        end
       end
 
       def solve1 : Int32?
+        puts "Burrow read :\n#{self}"
         check_next_movements @amphipodas
-        solution1.min_of? { |amps| amps.sum &.used_energy }
+        @solutions1.min_of { |burrow| burrow.amphipodas.sum &.used_energy }
       end
 
       def check_next_movements(amps)
@@ -123,26 +192,26 @@ module AdventOfCode2021
           find_possible_new_pos(a).each do |b|
             amps2 = amps.clone
             amps2[i] = b
-            if solved?(amps2)
-              solution1 << amps2
-            else
-              check_next_movements amps2
-            end
+            # if solved?(amps2)
+            #   solution1 << amps2
+            # else
+            #   check_next_movements amps2
+            # end
           end
         end
       end
 
-
       def find_possible_new_pos(amp : Amphipoda) : Array(Amphipoda)
         next_amps = [] of Amphipoda
-        steps = [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
-        steps.each do |x, y|
-          new_pos = {amp.position[0] + x, amp.position[1] + y}
-          if is_new_pos_valid?(amp, new_pos)
-            new_amp = amp.step(new_pos)
-            if is_new_pos_step?( amp, new_pos)
+        amp.next_positions.each do |new_pos|
+          if is_valid_step?(amp, new_pos)
+            new_amp = amp.clone
+            new_amp.step new_pos
+            if is_final_step?( new_amp, new_pos)
               puts "new pos found: #{new_pos}"
-              next_amps << amp.step_for_next_round(new_pos)
+              next_amp = new_amp.clone
+              next_amp.next_round
+              next_amps << next_amp
             end
             next_amps += find_possible_new_pos(new_amp)
           end
@@ -150,35 +219,35 @@ module AdventOfCode2021
         next_amps
       end
 
-      private def is_new_pos_valid?(amp : Amphipoda, new_pos) : Bool
-        !(!amp.prev_position.nil? && new_pos == amp.prev_position || get_room_type(new_pos) == RoomType::Wall || amphipodas.any? { |a| a.position == new_pos && a.id != amp.id }) && ( !is_room?(new_pos) || room_has_proper_amphipods(new_pos))
+      private def is_valid_step?(amp : Amphipoda, new_pos) : Bool
+        tile = get_tile new_pos
+        return false if tile.is_wall? || !tile.amp.nil? 
+        starting_tile = get_tile amp.starting_position
+        #starting tile can be room all hallway
+        return true if starting_tile.is_room? # from room amp can step to any other tile
+        return true if tile.is_hallway? || tile.is_hallway_no_stop? 
+        other_room = get_tile({ 5 - new_pos[0], new_pos[1]}) #rooms have coordinates x = 2 or x = 3 
+        return tile.type == amp.room_to_occupy && other_room.has_no_bad_amphipod?
       end
 
-      private def is_new_pos_step?(amp : Amphipoda, new_pos) : Bool
-        is_hallway?(new_pos) && is_room?(amp.starting_position) || is_room?(new_pos) && is_hallway?(amp.starting_position)
+
+      private def is_final_step?(amp : Amphipoda, new_pos) : Bool
+        tile = get_tile new_pos
+        starting_tile = get_tile amp.starting_position
+        if tile.is_hallway? && starting_tile.is_room?
+          return true
+        elsif tile.is_room? && starting_tile.is_hallway? 
+          other_room = get_tile({ 5 - new_pos[0], new_pos[1]}) #rooms have coordinates x = 2 or x = 3 
+          return new_pos[0] == 3 || !other_room.amp.nil? # ampiphod can stop only on bottoem
+        end
+        false
       end
 
-      def get_room_type(pos_x : Int32, pos_y : Int32) : RoomType
-        @rooms[pos_x][pos_y]
-      end
 
-      def get_room_type(pos : Tuple(Int32, Int32) = @position) : RoomType
-        get_room_type pos[0], pos[1]
+      private def get_tile(pos)
+        @tiles[pos[0]][pos[1]]
       end
-
-      def is_hallway?(pos)
-        get_room_type(pos) == RoomType::Hallway
-      end
-
-      def is_room?(pos)
-        rt = get_room_type(pos)
-        return rt == RoomType::Room_A || rt == RoomType::Room_B || rt == RoomType::Room_C || rt == RoomType::Room_D
-      end
-
-      def room_has_proper_amphipods(pos)
-        is_room?(pos) && amphipodas.none?{ |amp| amp.room_to_occupy != get_room_type(pos) && get_room_type(amp.position) == get_room_type(pos)}
-      end
-
+      
       def solve2
         0
       end
