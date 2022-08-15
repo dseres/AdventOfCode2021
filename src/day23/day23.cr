@@ -8,7 +8,7 @@ module AdventOfCode2021
       Empty
       Wall
       Hallway
-      Hallway_No_Stop
+      NoStop
       Room_A
       Room_B
       Room_C
@@ -65,7 +65,7 @@ module AdventOfCode2021
       end
 
       def room_to_occupy : RoomType
-        RoomType.new(@type.to_i + RoomType::Room_A.to_i)
+        RoomType::Room_A + @type.to_i
       end
 
       def next_positions : Array(Tuple(Int32,Int32))
@@ -89,7 +89,7 @@ module AdventOfCode2021
         when '.'
           case pos_y
           when 3, 5, 7, 9
-            @type = RoomType::Hallway_No_Stop
+            @type = RoomType::NoStop
           else
             @type = RoomType::Hallway
           end
@@ -119,16 +119,21 @@ module AdventOfCode2021
         end
       end
 
-      def is_room?
-        return @type == RoomType::Room_A || @type == RoomType::Room_B || @type == RoomType::Room_C || @type == RoomType::Room_D
+      def is_room? : Bool
+        case @type
+        when RoomType::Room_A..RoomType::Room_D
+          true
+        else
+          false
+        end
       end
 
       def is_hallway?
         return @type == RoomType::Hallway
       end
 
-      def is_hallway_no_stop?
-        return @type == RoomType::Hallway_No_Stop
+      def is_no_stop?
+        return @type == RoomType::NoStop
       end
 
       def is_wall?
@@ -137,7 +142,12 @@ module AdventOfCode2021
 
       def has_no_bad_amphipod?
         amp = @amp
-        amp.nil? || amp.room_to_occupy == type
+        amp.nil? || amp.room_to_occupy == @type
+      end
+
+      def has_good_amphipod?
+        amp = @amp
+        !amp.nil? && amp.room_to_occupy == @type
       end
 
     end
@@ -151,11 +161,7 @@ module AdventOfCode2021
         parse_input str
       end
 
-      def initialize(@tiles, @amphipodas)
-      end
-
-      def clone
-        Burrow.new(@tiles, @amphipodas)
+      def initialize(@tiles, @amphipodas, @solutions1 )
       end
 
       def solved? : Bool
@@ -193,14 +199,18 @@ module AdventOfCode2021
       def solve1 : Int32?
         #puts "Burrow read :\n#{self}"
         check_next_movements 
-        @solutions1.min_of { |burrow| burrow.amphipodas.sum &.used_energy }
+        @solutions1.min_of &.used_energy
+      end
+
+      def used_energy
+        @amphipodas.sum &.used_energy
       end
 
       def check_next_movements
         #puts "Burrow :\n#{self}"
         #puts "Press enter...  "
         #gets
-        @amphipodas.each_with_index do |a, i|
+        @amphipodas.each do |a|
           if !on_place? a
             #puts "Find possible new movements of #{a}..."
             find_possible_new_pos(a).each do |b|
@@ -209,14 +219,18 @@ module AdventOfCode2021
               if burrow.solved?
                 @solutions1 << burrow
               else
-                burrow.check_next_movements
+                min_used_energy = @solutions1.min_of? &.used_energy
+                #pp! min_used_energy, burrow.used_energy, @solutions1.size
+                if min_used_energy.nil? || burrow.used_energy < min_used_energy 
+                  burrow.check_next_movements
+                end
               end
             end
           end
         end
       end
 
-      private def find_possible_new_pos(amp : Amphipoda) : Array(Amphipoda)
+      private def find_possible_new_pos(amp)
         next_amps = [] of Amphipoda
         amp.next_positions.each do |new_pos|
           if is_valid_step?(amp, new_pos)
@@ -237,31 +251,28 @@ module AdventOfCode2021
       private def on_place?(amp) 
         tile = get_tile amp.position
         #pp! "on_place?", amp, tile.type
-        pos_x,pos_y = amp.position
-        return false unless tile.is_room?
         return false unless amp.room_to_occupy == tile.type;
+        pos_x,pos_y = amp.position
         return true if pos_x == 3 
         other_tile = get_tile({3 , pos_y})
-        other_amp = other_tile.amp
-        return true if pos_x == 2 && !other_amp.nil? && other_amp.room_to_occupy == other_tile.type
-        return false
+        return other_tile.has_good_amphipod?
       end
 
-      private def is_valid_step?(amp : Amphipoda, new_pos) : Bool
+      private def is_valid_step?(amp, new_pos) 
         tile = get_tile new_pos
         #pp! "is_valid_step?", amp, new_pos, tile.type
         return false if tile.is_wall? || !tile.amp.nil? 
         starting_tile = get_tile amp.starting_position
         #pp! starting_tile.type
         #starting tile can be room or hallway
-        return true if starting_tile.is_room? # from room amp can step to any other tile
-        return true if tile.is_hallway? || tile.is_hallway_no_stop? 
+        return true if starting_tile.is_room? # amp can step to any other tile from a room tile
+        return true if tile.is_hallway? || tile.is_no_stop? 
         other_room = get_tile({ 5 - new_pos[0], new_pos[1]}) #rooms have coordinates x = 2 or x = 3 
         return tile.type == amp.room_to_occupy && other_room.has_no_bad_amphipod?
       end
 
 
-      private def is_final_step?(amp : Amphipoda) : Bool
+      private def is_final_step?(amp)
         tile = get_tile amp.position
         starting_tile = get_tile amp.starting_position
         #pp! "is_final_step?", amp, tile.type, starting_tile.type
@@ -286,9 +297,9 @@ module AdventOfCode2021
         tile_old = get_tile amp_old.position
         set_tile tiles, amp_new.position, Tile.new( tile.type, amp_new)
         set_tile tiles, amp_old.position, Tile.new( tile_old.type, nil)
-        amps = @amphipodas.clone
+        amps = @amphipodas.dup
         amps[amp_old.id] = amp_new
-        Burrow.new tiles, amps
+        Burrow.new tiles, amps, @solutions1
       end
 
 
