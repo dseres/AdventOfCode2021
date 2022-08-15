@@ -42,25 +42,24 @@ module AdventOfCode2021
       end
 
       def to_s( io : IO ) 
-        io<<"#{'A' + type.to_i} id: #{@id} position: #{@position}, used_energy: #{@used_energy}"
+        io<<"#{'A' + type.to_i} id: #{@id} position: #{@position}, used_energy: #{@used_energy}, starting_position: #{starting_position}"
+      end
+
+      def clone : Amphipoda
+        Amphipoda.new(@id, @type, @position, @used_energy, @starting_position, @prev_position)
       end
 
       def energy : Int32
         @@energies[@type.to_i]
       end
 
-
-      def clone : Amphipoda
-        Amphipoda.new(@id, @type, @position, @used_energy, @starting_position, @prev_position)
-      end
-
       def step(new_pos) 
         @prev_position = @position
         @position = new_pos
-        @used_energy + @@energies[ @type.to_i]
+        @used_energy += energy
       end
 
-      def next_round 
+      def finish_step 
         @prev_position = nil
         @starting_position = @position
       end
@@ -98,6 +97,10 @@ module AdventOfCode2021
           @type = RoomType::Room_A + (pos_y - 3) // 2 # x could be 3,5,7,9
           @amp = Amphipoda.new(id, AmphipodaType::Amber + (c - 'A'), {pos_x, pos_y})
         end
+      end
+
+      def clone
+        Tile.new @type, @amp
       end
 
       def to_s(io : IO) : Nil
@@ -148,8 +151,15 @@ module AdventOfCode2021
         parse_input str
       end
 
-      def solved?(amps : Array(Amphipoda)) : Bool
-        amps.all? { |a| get_room_type(a.position) == a.room_to_occupy}
+      def initialize(@tiles, @amphipodas)
+      end
+
+      def clone
+        Burrow.new(@tiles, @amphipodas)
+      end
+
+      def solved? : Bool
+        amphipodas.all? { |amp| get_tile(amp.position).type == amp.room_to_occupy}
       end
 
       private def parse_input(input : String)
@@ -181,36 +191,41 @@ module AdventOfCode2021
       end
 
       def solve1 : Int32?
-        puts "Burrow read :\n#{self}"
-        check_next_movements @amphipodas
+        #puts "Burrow read :\n#{self}"
+        check_next_movements 
         @solutions1.min_of { |burrow| burrow.amphipodas.sum &.used_energy }
       end
 
-      def check_next_movements(amps)
-        amps.each_with_index do |a, i|
-          puts "check_next_movement of #{a}"
-          find_possible_new_pos(a).each do |b|
-            amps2 = amps.clone
-            amps2[i] = b
-            # if solved?(amps2)
-            #   solution1 << amps2
-            # else
-            #   check_next_movements amps2
-            # end
+      def check_next_movements
+        puts "Burrow :\n#{self}"
+        puts "Press enter...  "
+        gets
+        @amphipodas.each_with_index do |a, i|
+          if !on_place? a
+            puts "Find possible new movements of #{a}..."
+            find_possible_new_pos(a).each do |b|
+              puts "Found new position: #{b}"
+              burrow = next_burrow a,b
+              if burrow.solved?
+                @solutions1 << burrow
+              else
+                burrow.check_next_movements
+              end
+            end
           end
         end
       end
 
-      def find_possible_new_pos(amp : Amphipoda) : Array(Amphipoda)
+      private def find_possible_new_pos(amp : Amphipoda) : Array(Amphipoda)
         next_amps = [] of Amphipoda
         amp.next_positions.each do |new_pos|
           if is_valid_step?(amp, new_pos)
             new_amp = amp.clone
             new_amp.step new_pos
-            if is_final_step?( new_amp, new_pos)
+            if is_final_step?( new_amp )
               puts "new pos found: #{new_pos}"
               next_amp = new_amp.clone
-              next_amp.next_round
+              next_amp.finish_step
               next_amps << next_amp
             end
             next_amps += find_possible_new_pos(new_amp)
@@ -219,11 +234,22 @@ module AdventOfCode2021
         next_amps
       end
 
+      private def on_place?(amp) 
+        tile = get_tile amp.position
+        pos_x,pos_y = amp.position
+        return false unless amp.room_to_occupy == tile.type;
+        return true if pos_x = 3 
+        other_tile = get_tile({3 , pos_y})
+        other_amp = other_tile.amp
+        return true if !other_amp.nil? && other_amp.room_to_occupy == other_tile.type
+        return false
+      end
+
       private def is_valid_step?(amp : Amphipoda, new_pos) : Bool
         tile = get_tile new_pos
         return false if tile.is_wall? || !tile.amp.nil? 
         starting_tile = get_tile amp.starting_position
-        #starting tile can be room all hallway
+        #starting tile can be room or hallway
         return true if starting_tile.is_room? # from room amp can step to any other tile
         return true if tile.is_hallway? || tile.is_hallway_no_stop? 
         other_room = get_tile({ 5 - new_pos[0], new_pos[1]}) #rooms have coordinates x = 2 or x = 3 
@@ -231,16 +257,16 @@ module AdventOfCode2021
       end
 
 
-      private def is_final_step?(amp : Amphipoda, new_pos) : Bool
-        tile = get_tile new_pos
+      private def is_final_step?(amp : Amphipoda) : Bool
+        tile = get_tile amp.position
         starting_tile = get_tile amp.starting_position
         if tile.is_hallway? && starting_tile.is_room?
           return true
         elsif tile.is_room? && starting_tile.is_hallway? 
-          other_room = get_tile({ 5 - new_pos[0], new_pos[1]}) #rooms have coordinates x = 2 or x = 3 
-          return new_pos[0] == 3 || !other_room.amp.nil? # ampiphod can stop only on bottoem
+          other_room = get_tile({ 3, amp.position[1]}) #rooms have coordinates x = 2 or x = 3 
+          return amp.position[0] == 3 || other_room.amp.nil? # ampiphod can stop only on bottoem
         end
-        false
+        return false
       end
 
 
@@ -248,6 +274,21 @@ module AdventOfCode2021
         @tiles[pos[0]][pos[1]]
       end
       
+      private def next_burrow(amp_old, amp_new)
+        tiles = @tiles.clone
+        tile = get_tile amp_new.position
+        set_tile tiles, amp_new.position, Tile.new( tile.type, amp_new)
+        set_tile tiles, amp_old.position, Tile.new( tile.type, nil)
+        amps = @amphipodas.clone
+        amps[amp_old.id] = amp_new
+        Burrow.new tiles, amps
+      end
+
+
+      private def set_tile(tiles, pos, tile)
+        tiles[pos[0]][pos[1]] = tile
+      end
+
       def solve2
         0
       end
