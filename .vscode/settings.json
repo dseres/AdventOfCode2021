@@ -1,4 +1,8 @@
 {
     "editor.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
-    "editor.fontLigatures": "'ss05'" //Traditional 'at' @ 
+    "editor.fontLigatures": "'ss05'",
+    "crystal-lang.problems": "build",
+    "crystal-lang.completion": true,
+    "crystal-lang.hover": true,
+    "crystal-lang.implementations": true //Traditional 'at' @ 
 }
