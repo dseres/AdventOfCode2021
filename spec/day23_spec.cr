@@ -74,6 +74,12 @@ describe AdventOfCode2021::Day23, focus: true do
       end
     end
 
+    it "clone should deep copy amphipodas" do
+      room = Room.new(Type::Amber, [Type::Amber])
+      cloned = room.clone
+      cloned.amphipodas.same?(room.amphipodas).should be_false
+    end
+
     it "pop should give back type and number of steps" do
       room = Room.new(Type::Bronze, [Type::Copper, Type::Desert])
       room.pop.should eq({Type::Desert, 1})
@@ -176,6 +182,16 @@ INPUT
     it "to_s should print the same as input" do
       burrow = Burrow.new(input)
       burrow.to_s.should eq(input)
+    end
+
+    it "clone should deep copy everything except solutions1" do
+      b = Burrow.new
+      c = b.clone
+      b.hallway.same?(c.hallway).should be_false
+      b.rooms.same?(c.rooms).should be_false
+      b.used_energy.==(c.used_energy).should be_true
+      b.solutions1.same?(c.solutions1).should be_true
+      b.min_energy1.==(c.min_energy1).should be_true
     end
 
     it "solved? should be false for input, and should be true for a presolved input" do

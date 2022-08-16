@@ -43,7 +43,11 @@ module AdventOfCode2021
         raise Exception.new("Cannot add more amphipods then #{SIZE}") if @amphipodas.size > SIZE
         raise Exception.new("Amphipodas cannot be None") if @amphipodas.any? &.== Type::None
       end
-
+      
+      def clone
+        Room.new(@type, @amphipodas.clone)
+      end
+      
       # returns the type and number of steps or nil if there are no ampiphod
       def pop : Tuple(Type, Int32) | Nil
         return nil if @amphipodas.empty?
@@ -71,11 +75,14 @@ module AdventOfCode2021
       getter hallway : Array(Type) = Array.new(11, Type::None)
       getter rooms : Array(Room) = Array.new(4) { |i| Room.new(Type.new(i + 1)) }
       getter used_energy = 0
+      getter solutions1 = [] of Burrow
+      getter min_energy1 = 0
 
-      def initialize(@hallway = Array.new(11, Type::None), @rooms = Array.new(4) { |i| Room.new(Type.new(i + 1)) }, @used_energy = 0); end
+      def initialize; end
+      def initialize(@hallway, @rooms, @used_energy, @solutions1, @min_energy1); end
 
       def clone
-        Burrow.new(@hallway, @rooms, @used_energy)
+        Burrow.new(@hallway.clone, @rooms.clone, @used_energy, @solutions1, @min_energy1)
       end
 
       def initialize(str : String)
