@@ -52,7 +52,7 @@ describe AdventOfCode2021::Day23, focus: true do
 
         room = Room.new(Type::Amber)
         room.type.should eq(Type::Amber)
-        room.amphipodas.empty?().should be_true
+        room.amphipodas.empty?.should be_true
       end
 
       it "room can be created with two or less amphipods" do
@@ -141,18 +141,18 @@ describe AdventOfCode2021::Day23, focus: true do
     describe "constructor" do
       it "constructor should create empty burrow" do
         b = Burrow.new
-        b.rooms.size().should eq(4)
+        b.rooms.size.should eq(4)
         b.rooms[0].type.should eq(Type::Amber)
         b.rooms[1].type.should eq(Type::Bronze)
         b.rooms[2].type.should eq(Type::Copper)
         b.rooms[3].type.should eq(Type::Desert)
-        b.rooms[0].amphipodas.empty?().should be_true
-        b.rooms[1].amphipodas.empty?().should be_true
-        b.rooms[2].amphipodas.empty?().should be_true
-        b.rooms[3].amphipodas.empty?().should be_true
+        b.rooms[0].amphipodas.empty?.should be_true
+        b.rooms[1].amphipodas.empty?.should be_true
+        b.rooms[2].amphipodas.empty?.should be_true
+        b.rooms[3].amphipodas.empty?.should be_true
         b.used_energy.should eq(0)
         b.hallway.should eq(Array.new(11, Type::None))
-        end
+      end
     end
 
     input = <<-INPUT
@@ -162,7 +162,7 @@ describe AdventOfCode2021::Day23, focus: true do
   #A#D#C#A#
   #########
 INPUT
-    
+
     it "parse input of day23" do
       burrow = Burrow.new(input)
       burrow.rooms[0].amphipodas.should eq([Type::Amber, Type::Bronze])
@@ -175,12 +175,12 @@ INPUT
 
     it "to_s should print the same as input" do
       burrow = Burrow.new(input)
-      burrow.to_s().should eq(input)
+      burrow.to_s.should eq(input)
     end
 
     it "solved? should be false for input, and should be true for a presolved input" do
       b = Burrow.new(input)
-      b.solved?().should be_false
+      b.solved?.should be_false
 
       solved_input = <<-INPUT
 #############
@@ -190,7 +190,7 @@ INPUT
   #########
 INPUT
       s = Burrow.new(solved_input)
-      s.solved?().should be_true
+      s.solved?.should be_true
     end
   end
 end

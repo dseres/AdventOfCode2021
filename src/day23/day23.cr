@@ -1,7 +1,8 @@
 module AdventOfCode2021
+  extend self
+
   module Day23
     extend self
-
     DAY = 23
 
     enum Type
@@ -66,11 +67,12 @@ module AdventOfCode2021
     end
 
     class Burrow
+      include AdventOfCode2021::Day23
       getter hallway : Array(Type) = Array.new(11, Type::None)
-      getter rooms : Array(Room) = Array.new(4){|i| Room.new(Type.new(i+1)) }
+      getter rooms : Array(Room) = Array.new(4) { |i| Room.new(Type.new(i + 1)) }
       getter used_energy = 0
 
-      def initialize(@hallway  = Array.new(11, Type::None), @rooms = Array.new(4){|i| Room.new(Type.new(i+1)) }, @used_energy = 0); end
+      def initialize(@hallway = Array.new(11, Type::None), @rooms = Array.new(4) { |i| Room.new(Type.new(i + 1)) }, @used_energy = 0); end
 
       def clone
         Burrow.new(@hallway, @rooms, @used_energy)
@@ -85,7 +87,7 @@ module AdventOfCode2021
         0.upto(3).each do |i|
           first = lines[3][3 + 2*i]
           second = lines[2][3 + 2*i]
-          @rooms[i] = Room.new( Type::Amber + i, [ AdventOfCode2021::Day23.from_char(first), AdventOfCode2021::Day23.from_char(second)])
+          @rooms[i] = Room.new(Type::Amber + i, [from_char(first), from_char(second)])
         end
       end
 
@@ -98,29 +100,29 @@ module AdventOfCode2021
       end
 
       private def first_line_to_s(io)
-        io << "##";
-        0.upto(3) do |i| 
-          io <<"#"
-          if @rooms[i].amphipodas.size>1
-            io<<AdventOfCode2021::Day23.to_char(@rooms[i].amphipodas[1])
+        io << "##"
+        0.upto(3) do |i|
+          io << "#"
+          if @rooms[i].amphipodas.size > 1
+            io << to_char(@rooms[i].amphipodas[1])
           else
-            io<<"."
+            io << "."
           end
         end
-        io << "###\n";
+        io << "###\n"
       end
 
       private def second_line_to_s(io)
-        io << "  ";
-        0.upto(3) do |i| 
-          io <<"#"
+        io << "  "
+        0.upto(3) do |i|
+          io << "#"
           unless @rooms[i].amphipodas.empty?
-            io<<AdventOfCode2021::Day23.to_char(@rooms[i].amphipodas[0])
+            io << to_char(@rooms[i].amphipodas[0])
           else
-            io<<"."
+            io << "."
           end
         end
-        io << "#\n";
+        io << "#\n"
       end
 
       def solved? : Bool
