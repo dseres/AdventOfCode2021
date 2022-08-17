@@ -5,31 +5,17 @@ module AdventOfCode2021
     extend self
     DAY = 23
 
-    enum Type
-      None
-      Amber
-      Bronze
-      Copper
-      Desert
-    end
+    WALL   = '#'.bytes[0]
+    EMPTY  = '.'.bytes[0]
+    AMBER  = 'A'.bytes[0]
+    BRONZE = 'B'.bytes[0]
+    COPPER = 'C'.bytes[0]
+    DESERT = 'D'.bytes[0]
 
-    def from_char(c : Char) : Type
-      case c
-      when 'A' then Type::Amber
-      when 'B' then Type::Bronze
-      when 'C' then Type::Copper
-      when 'D' then Type::Desert
-      else          Type::None
-      end
-    end
-
-    def to_char(t : Type) : Char
+    def is_type?(t : UInt8) : Bool
       case t
-      when Type::Amber  then 'A'
-      when Type::Bronze then 'B'
-      when Type::Copper then 'C'
-      when Type::Desert then 'D'
-      else                   '.'
+      when AMBER..DESERT then true
+      else                    false
       end
     end
 
@@ -38,47 +24,51 @@ module AdventOfCode2021
       getter type
       getter amphipodas
 
-      def initialize(@type : Type, @amphipodas : Array(Type) = Array(Type).new(2))
-        raise Exception.new("Type cannot be None") if @type == Type::None
+      def initialize(@type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(2))
+        raise Exception.new("Type cannot be None") if @type == EMPTY
         raise Exception.new("Cannot add more amphipods then #{SIZE}") if @amphipodas.size > SIZE
-        raise Exception.new("Amphipodas cannot be None") if @amphipodas.any? &.== Type::None
+        raise Exception.new("Amphipodas cannot contain EMPTY") if @amphipodas.any? &.== EMPTY
       end
-      
+
       def clone
         Room.new(@type, @amphipodas.clone)
       end
-      
-      # returns the type and number of steps or nil if there are no ampiphod
-      def pop : Tuple(Type, Int32) | Nil
-        return nil if @amphipodas.empty?
-        {@amphipodas.pop, 2 - @amphipodas.size}
+
+      def can_pop? : Bool
+        @amphipodas.size == 1 && @amphipodas[0] != @type || @amphipodas.size == 2 && (@amphipodas[0] != @type || @amphipodas[1] != @type)
       end
 
-      def can_push?(amp : Type) : Bool
+      def pop : Tuple(UInt8, Int32) | Nil
+        return nil if !can_pop?
+        {@amphipodas.pop, SIZE - @amphipodas.size}
+      end
+
+      def can_push?(amp : UInt8) : Bool
         @type == amp && @amphipodas.size < SIZE && (@amphipodas.empty? || @amphipodas[0] == @type)
       end
 
       # Returns the number of steps
-      def push(amp : Type) : Int32 | Nil
-        return nil unless can_push?(amp)
+      def push(amp : UInt8) : Int32 | Nil
+        return nil if !can_push?(amp)
         @amphipodas << amp
-        3 - @amphipodas.size
+        SIZE - @amphipodas.size + 1
       end
 
       def solved? : Bool
-        @amphipodas == [@type, @type]
+        @amphipodas.size == 2 && @amphipodas[0] == @type && @amphipodas[1] == @type
       end
     end
 
     class Burrow
       include AdventOfCode2021::Day23
-      getter hallway : Array(Type) = Array.new(11, Type::None)
-      getter rooms : Array(Room) = Array.new(4) { |i| Room.new(Type.new(i + 1)) }
+      getter hallway = StaticArray(UInt8, 11).new(EMPTY)
+      getter rooms = StaticArray(Room, 4).new { |i| AdventOfCode2021::Day23::Room.new(AdventOfCode2021::Day23::AMBER + i.to_u8) }
       getter used_energy = 0
       getter solutions1 = [] of Burrow
       getter min_energy1 = 0
 
       def initialize; end
+
       def initialize(@hallway, @rooms, @used_energy, @solutions1, @min_energy1); end
 
       def clone
@@ -86,15 +76,15 @@ module AdventOfCode2021
       end
 
       def initialize(str : String)
-        parse_input str
+        parse_input(str)
       end
 
       private def parse_input(input : String)
         lines = input.lines
-        0.upto(3).each do |i|
-          first = lines[3][3 + 2*i]
-          second = lines[2][3 + 2*i]
-          @rooms[i] = Room.new(Type::Amber + i, [from_char(first), from_char(second)])
+        (0...@rooms.size).each do |i|
+          first = lines[3].byte_at(3 + 2*i)
+          second = lines[2].byte_at(3 + 2*i)
+          @rooms[i] = Room.new(AMBER + i.to_u8, [first, second])
         end
       end
 
@@ -108,12 +98,12 @@ module AdventOfCode2021
 
       private def first_line_to_s(io)
         io << "##"
-        0.upto(3) do |i|
+        (0...@rooms.size).each do |i|
           io << "#"
           if @rooms[i].amphipodas.size > 1
-            io << to_char(@rooms[i].amphipodas[1])
+            io.write_byte @rooms[i].amphipodas[1]
           else
-            io << "."
+            io << EMPTY
           end
         end
         io << "###\n"
@@ -121,12 +111,12 @@ module AdventOfCode2021
 
       private def second_line_to_s(io)
         io << "  "
-        0.upto(3) do |i|
+        (0...@rooms.size).each do |i|
           io << "#"
           unless @rooms[i].amphipodas.empty?
-            io << to_char(@rooms[i].amphipodas[0])
+            io.write_byte @rooms[i].amphipodas[0]
           else
-            io << "."
+            io << EMPTY
           end
         end
         io << "#\n"
