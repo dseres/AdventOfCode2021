@@ -24,7 +24,7 @@ module AdventOfCode2021
       getter type
       getter amphipodas
 
-      def initialize(@type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(2))
+      def initialize(@type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(SIZE))
         raise Exception.new("Type cannot be None") if @type == EMPTY
         raise Exception.new("Cannot add more amphipods then #{SIZE}") if @amphipodas.size > SIZE
         raise Exception.new("Amphipodas cannot contain EMPTY") if @amphipodas.any? &.== EMPTY
@@ -35,7 +35,7 @@ module AdventOfCode2021
       end
 
       def can_pop? : Bool
-        @amphipodas.size == 1 && @amphipodas[0] != @type || @amphipodas.size == 2 && (@amphipodas[0] != @type || @amphipodas[1] != @type)
+        !@amphipodas.empty? && @amphipodas.any? &.!= @type
       end
 
       def pop : Tuple(UInt8, Int32) | Nil
@@ -44,7 +44,7 @@ module AdventOfCode2021
       end
 
       def can_push?(amp : UInt8) : Bool
-        @type == amp && @amphipodas.size < SIZE && (@amphipodas.empty? || @amphipodas[0] == @type)
+        @type == amp && @amphipodas.size < SIZE && @amphipodas.all? &.== @type
       end
 
       # Returns the number of steps
@@ -55,7 +55,7 @@ module AdventOfCode2021
       end
 
       def solved? : Bool
-        @amphipodas.size == 2 && @amphipodas[0] == @type && @amphipodas[1] == @type
+        @amphipodas.size == SIZE && @amphipodas.all? &.== @type
       end
     end
 
