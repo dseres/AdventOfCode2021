@@ -205,6 +205,50 @@ module Day23Spec
         s = Burrow.new(solved_input)
         s.solved?.should be_true
       end
+
+      it "index_of_room_entry function should give the index of hallway at the entry of that room" do
+        Burrow.index_of_room_entry(0).should eq(2)        
+        Burrow.index_of_room_entry(1).should eq(4)        
+        Burrow.index_of_room_entry(2).should eq(6)        
+        Burrow.index_of_room_entry(3).should eq(8)        
+      end
+
+      it "is_entry? function should return true if an index in hallway is a room's entry point" do 
+        Burrow.is_entry?(-1).should be_false
+        Burrow.is_entry?(0).should be_false
+        Burrow.is_entry?(1).should be_false
+        Burrow.is_entry?(2).should be_true
+        Burrow.is_entry?(3).should be_false
+        Burrow.is_entry?(4).should be_true
+        Burrow.is_entry?(5).should be_false
+        Burrow.is_entry?(6).should be_true
+        Burrow.is_entry?(7).should be_false
+        Burrow.is_entry?(8).should be_true
+        Burrow.is_entry?(9).should be_false
+        Burrow.is_entry?(10).should be_false
+        Burrow.is_entry?(11).should be_false
+      end
+
+      it "is_not_entry? function should return true if an index in hallway isn't a room's entry point" do 
+        Burrow.is_not_entry?(-1).should be_false
+        Burrow.is_not_entry?(0).should be_true
+        Burrow.is_not_entry?(1).should be_true
+        Burrow.is_not_entry?(2).should be_false
+        Burrow.is_not_entry?(3).should be_true
+        Burrow.is_not_entry?(4).should be_false
+        Burrow.is_not_entry?(5).should be_true
+        Burrow.is_not_entry?(6).should be_false
+        Burrow.is_not_entry?(7).should be_true
+        Burrow.is_not_entry?(8).should be_false
+        Burrow.is_not_entry?(9).should be_true
+        Burrow.is_not_entry?(10).should be_true
+        Burrow.is_not_entry?(11).should be_false
+      end
+
+      it "solution1 of test input should be 12521" do
+        b = Burrow.new input
+        b.solve1.should eq(12521)
+      end
     end
   end
 end

@@ -67,6 +67,8 @@ module AdventOfCode2021
       getter solutions1 = [] of Burrow
       getter min_energy1 = 0
 
+      @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
+
       def initialize; end
 
       def initialize(@hallway, @rooms, @used_energy, @solutions1, @min_energy1); end
@@ -127,13 +129,74 @@ module AdventOfCode2021
       end
 
       def solve1 : Int32?
+        iterate_over_amphipods
         12521
       end
 
-      #   def used_energy
-      #     @amphipodas.sum &.used_energy
-      #   end
+      private def iterate_over_amphipods
+        puts "Burrow :\n#{self}"
+        puts "Press enter...  "
+        gets
+        checks_amps_in_hallway
+        checks_amps_in_rooms
+      end
 
+      private def checks_amps_in_hallway
+      end
+
+      private def checks_amps_in_rooms
+        @rooms.each_with_index do | room, i |
+          if room.can_pop? 
+            check_next_movement room,i
+          end
+        end
+      end
+
+      private def check_next_movement(idx : Int32)
+      end
+
+      private def check_next_movement(room : Room, idx : Int32)
+        h = idx * 2 + 2;
+        steps = 0
+        (0...h).reverse_each do |i|
+          steps += 1
+          break if @hallway[i] != EMPTY
+          if Burrow.is_not_entry? i
+            # these fields will be a valid move
+            # move amphipod from rooms[idx] to hallway[i]
+          end
+        end
+        steps = 0
+        ((h+1)...@hallway.sizes).each do |i|
+          steps += 1
+          break if @hallway[i] != EMPTY
+          if Burrow.is_not_entry? i
+            #these fields will be a valid move
+            # move amphipod from rooms[idx] to hallway[i]
+          end
+        end
+      end
+
+      def self.index_of_room_entry(r : Int32) : Int32
+        2 + r * 2
+      end
+
+      def self.is_entry?( h : Int32) : Bool
+        case h
+        when 2,4,6,8 then true
+        else false
+        end
+      end
+
+      def self.is_not_entry?( h : Int32) : Bool
+        (0..10).includes?(h) && !Burrow.is_entry?(h)
+      end
+
+      private def move_amp_from_room(r,h)
+        amp,energy = @rooms[r].pop
+        energy += h  
+      end
+      
       #   def check_next_movements
       #     #puts "Burrow :\n#{self}"
       #     #puts "Press enter...  "
