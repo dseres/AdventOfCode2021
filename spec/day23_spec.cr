@@ -358,6 +358,7 @@ module Day23Spec
         b.move_amp_h2r 9, 0
         b.used_energy.should eq(13011)
         b.solved?.should be_true
+        
         b = Burrow.new input2
         b.solve.should eq(2000 + 3 + 3000 + 8000 + 8)
       end

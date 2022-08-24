@@ -64,8 +64,8 @@ module AdventOfCode2021
       getter hallway = StaticArray(UInt8, 11).new(EMPTY)
       getter rooms = StaticArray(Room, 4).new { |i| AdventOfCode2021::Day23::Room.new(AdventOfCode2021::Day23::AMBER + i.to_u8) }
       getter used_energy = 0
-      getter solutions = [] of Burrow
-      @min_energy : Int32 | Nil = nil
+      getter solutions = Hash(String, Burrow).new
+      getter min_energy : Int32 | Nil = nil
 
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
@@ -148,7 +148,15 @@ module AdventOfCode2021
           return @used_energy
         end
 
+        # check cached solved or not solvable burrows
+        cached = @solutions[to_s]?
+        if !cached.nil?
+          return cached.min_energy
+        end
+
         iterate_over_amphipods
+        #cache solved state
+        @solutions[to_s] = self
         return @min_energy
       end
 
@@ -220,12 +228,12 @@ module AdventOfCode2021
       end
 
       private def solve_next_burrow(new_burrow)
-        min_energy = @min_energy
+        me = @min_energy
         next_me = new_burrow.solve
-        if min_energy.nil?
+        if me.nil?
           @min_energy = next_me
         elsif !next_me.nil?
-          @min_energy = Math.min min_energy, next_me
+          @min_energy = Math.min me, next_me
         end
       end
 
