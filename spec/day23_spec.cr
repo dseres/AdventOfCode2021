@@ -311,7 +311,7 @@ module Day23Spec
         INPUT
         b = Burrow.new simple
         b.to_s.should eq(simple)
-        b.solve1.should eq(2)
+        b.solve.should eq(2)
 
         simple = <<-INPUT
         #############
@@ -322,7 +322,7 @@ module Day23Spec
         INPUT
         b = Burrow.new simple
         b.to_s.should eq(simple)
-        b.solve1.should eq(5)
+        b.solve.should eq(5)
 
         simple = <<-INPUT
         #############
@@ -333,7 +333,7 @@ module Day23Spec
         INPUT
         b = Burrow.new simple
         b.to_s.should eq(simple)
-        b.solve1.should eq(42)
+        b.solve.should eq(42)
       end
 
 
@@ -346,12 +346,12 @@ module Day23Spec
           #########
         INPUT
         b = Burrow.new not_solvable
-        b.solve1.should be_nil
+        b.solve.should be_nil
       end
 
       it "solution1 of test input should be 12521" do
         b = Burrow.new input
-        b.solve1.should eq(12521)
+        b.solve.should eq(12521)
       end
     end
   end

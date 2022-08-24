@@ -65,8 +65,7 @@ module AdventOfCode2021
       getter rooms = StaticArray(Room, 4).new { |i| AdventOfCode2021::Day23::Room.new(AdventOfCode2021::Day23::AMBER + i.to_u8) }
       getter used_energy = 0
       getter solutions = [] of Burrow
-      @min_energy = Int32::MAX
-      @solved = false
+      @min_energy : Int32|Nil = nil
 
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
@@ -143,20 +142,17 @@ module AdventOfCode2021
         @rooms.all? &.solved?
       end
 
-      def solve1 : Int32?
+      def solve : Int32?
         # puts "Burrow :\n#{self}"
         # puts "Press enter...  "
         # gets
 
         if solved?
-          @solved = true
-          @min_energy = used_energy
-          return @min_energy
+          return @used_energy
         end
         
         iterate_over_amphipods
-        return @min_energy if @solved
-        return nil
+        return @min_energy 
       end
 
       private def iterate_over_amphipods
@@ -228,10 +224,12 @@ module AdventOfCode2021
       end
 
       private def solve_next_burrow(new_burrow)
-        min_energy = new_burrow.solve1
-        if !min_energy.nil?
-          @solved = true
-          @min_energy = Math.min @min_energy, min_energy
+        min_energy = @min_energy
+        next_me = new_burrow.solve
+        if min_energy.nil?
+          @min_energy = next_me
+        elsif !next_me.nil?
+          @min_energy = Math.min min_energy, next_me
         end
       end
 
@@ -288,7 +286,7 @@ module AdventOfCode2021
     def main
       burrow = Burrow.new(File.read "./src/day#{DAY}/input.txt")
 
-      puts "Solutions of day#{DAY} : #{burrow.solve1} #{burrow.solve2}"
+      puts "Solutions of day#{DAY} : #{burrow.solve} #{burrow.solve2}"
     end
   end
 end
