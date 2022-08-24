@@ -65,7 +65,7 @@ module AdventOfCode2021
       getter rooms = StaticArray(Room, 4).new { |i| AdventOfCode2021::Day23::Room.new(AdventOfCode2021::Day23::AMBER + i.to_u8) }
       getter used_energy = 0
       getter solutions = [] of Burrow
-      @min_energy : Int32|Nil = nil
+      @min_energy : Int32 | Nil = nil
 
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
@@ -84,10 +84,7 @@ module AdventOfCode2021
       private def parse_input(input : String)
         lines = input.lines
         # parse lines
-        hbytes = lines[1].bytes
-        (1..11).each do |i|
-          @hallway[i - 1] = hbytes[i]
-        end
+        @hallway.fill { |i| lines[1].byte_at i + 1 }
         # parse rooms
         (0...@rooms.size).each do |i|
           first = lines[3].byte_at(3 + 2*i)
@@ -150,9 +147,9 @@ module AdventOfCode2021
         if solved?
           return @used_energy
         end
-        
+
         iterate_over_amphipods
-        return @min_energy 
+        return @min_energy
       end
 
       private def iterate_over_amphipods
@@ -179,17 +176,16 @@ module AdventOfCode2021
       # check an amphipod's possible movements from hallway to room
       private def check_next_movement_h2r(idx : Int32)
         check_next_movement_h2r idx, ((idx - 1)..2), -1
-        check_next_movement_h2r idx, ((idx + 1)..@hallway.size - 3), +1
+        check_next_movement_h2r idx, ((idx + 1)..(@hallway.size - 3)), +1
       end
 
       private def check_next_movement_h2r(idx : Int32, range : Range, stepby : Int32)
         range.step(stepby) do |i|
-          if @hallway[i] == EMPTY
-            if Burrow.is_entry? i
-              room_ind = Burrow.hallway_index_to_room i
-              if @rooms[room_ind].can_push? @hallway[idx]
-                next_burrow_moving_h2r idx, room_ind
-              end
+          break if @hallway[i] != EMPTY
+          if Burrow.is_entry? i
+            room_ind = Burrow.hallway_index_to_room i
+            if @rooms[room_ind].can_push? @hallway[idx]
+              next_burrow_moving_h2r idx, room_ind
             end
           end
         end
@@ -198,7 +194,7 @@ module AdventOfCode2021
       # check an amphipod's possible movements from room to hallway
       private def check_next_movement_r2h(room : Room, idx : Int32)
         h = Burrow.room_index_to_hallway idx
-        check_next_movement_r2h idx, (0...h), -1
+        check_next_movement_r2h idx, ((h - 1)..0), -1
         check_next_movement_r2h idx, ((h + 1)...@hallway.size), +1
       end
 

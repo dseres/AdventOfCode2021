@@ -20,8 +20,8 @@ module Day23Spec
   INPUT
 
   describe AdventOfCode2021::Day23, focus: true do
-    describe "is_room?" do
-      it "is_room? should return true on valid ampiphod types" do
+    describe "is_type?" do
+      it "is_type? should return true on valid ampiphod types" do
         AdventOfCode2021::Day23.is_type?(AMBER).should be_true
         AdventOfCode2021::Day23.is_type?(BRONZE).should be_true
         AdventOfCode2021::Day23.is_type?(COPPER).should be_true
@@ -336,6 +336,31 @@ module Day23Spec
         b.solve.should eq(42)
       end
 
+      it "a little bit more complicated example to solve function" do
+        input2 = <<-INPUT
+        #############
+        #...........#
+        ###D#B#C#D###
+          #A#B#C#A#
+          #########
+        INPUT
+        b = Burrow.new input2
+        b.move_amp_r2h 3, 7
+        b.used_energy.should eq(2000)
+        b.move_amp_r2h 3, 9
+        b.used_energy.should eq(2003)
+        b.move_amp_h2r 7, 3
+        b.used_energy.should eq(5003)
+        b.move_amp_r2h 0, 7
+        b.used_energy.should eq(11003)
+        b.move_amp_h2r 7, 3
+        b.used_energy.should eq(13003)
+        b.move_amp_h2r 9, 0
+        b.used_energy.should eq(13011)
+        b.solved?.should be_true
+        b = Burrow.new input2
+        b.solve.should eq(2000 + 3 + 3000 + 8000 + 8)
+      end
 
       it "solve function should return nil if problem not solvable" do
         not_solvable = <<-INPUT
@@ -347,6 +372,11 @@ module Day23Spec
         INPUT
         b = Burrow.new not_solvable
         b.solve.should be_nil
+      end
+
+      it "solve function should return 0 to solved input" do
+        b = Burrow.new solved_input
+        b.solve.should eq(0)
       end
 
       it "solution1 of test input should be 12521" do
