@@ -189,14 +189,13 @@ module Day23Spec
         burrow.to_s.should eq(input)
       end
 
-      it "clone should deep copy everything except solutions1" do
+      it "clone should deep copy everything except solutions" do
         b = Burrow.new
         c = b.clone
         b.hallway.==(c.hallway).should be_true
         b.rooms.==(c.rooms).should be_false # rooms are compared by refererence
         b.used_energy.==(c.used_energy).should be_true
-        b.solutions1.same?(c.solutions1).should be_true
-        b.min_energy1.==(c.min_energy1).should be_true
+        b.solutions.same?(c.solutions).should be_true
       end
 
       it "solved? should be false for input, and should be true for a presolved input" do
@@ -207,11 +206,18 @@ module Day23Spec
         s.solved?.should be_true
       end
 
-      it "index_of_room_entry function should give the index of hallway at the entry of that room" do
-        Burrow.index_of_room_entry(0).should eq(2)
-        Burrow.index_of_room_entry(1).should eq(4)
-        Burrow.index_of_room_entry(2).should eq(6)
-        Burrow.index_of_room_entry(3).should eq(8)
+      it "room_index_to_hallway function should give the index of hallway at the entry of that room" do
+        Burrow.room_index_to_hallway(0).should eq(2)
+        Burrow.room_index_to_hallway(1).should eq(4)
+        Burrow.room_index_to_hallway(2).should eq(6)
+        Burrow.room_index_to_hallway(3).should eq(8)
+      end
+
+      it "hallway_index_to_room function should give the index of room from index of hallway entry" do
+        Burrow.hallway_index_to_room(2).should eq(0)
+        Burrow.hallway_index_to_room(4).should eq(1)
+        Burrow.hallway_index_to_room(6).should eq(2)
+        Burrow.hallway_index_to_room(8).should eq(3)
       end
 
       it "is_entry? function should return true if an index in hallway is a room's entry point" do
@@ -261,7 +267,7 @@ module Day23Spec
 
       it "test of move_amp_*_room should give proper result of ampiphods and energy" do
         b = Burrow.new input
-        b.move_amp_from_room 1, 1
+        b.move_amp_r2h 1, 1
         result = <<-INPUT
         #############
         #.C.........#
@@ -272,7 +278,7 @@ module Day23Spec
         b.to_s.should eq(result)
         b.used_energy.should eq(400)
 
-        b.move_amp_from_room 2, 9
+        b.move_amp_r2h 2, 9
         result = <<-INPUT
         #############
         #.C.......B.#
@@ -283,7 +289,7 @@ module Day23Spec
         b.to_s.should eq(result)
         b.used_energy.should eq(440)
 
-        b.move_amp_to_room 1, 2
+        b.move_amp_h2r 1, 2
         result = <<-INPUT
         #############
         #.........B.#
