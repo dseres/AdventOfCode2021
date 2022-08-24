@@ -66,16 +66,16 @@ module AdventOfCode2021
       getter used_energy = 0
       getter solutions1 = [] of Burrow
       getter min_energy1 = Int32::MAX
-      getter solved = false
+      @solved = false
 
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
       def initialize; end
 
-      def initialize(@hallway, @rooms, @used_energy, @solutions1, @min_energy1, @solved); end
+      def initialize(@hallway, @rooms, @used_energy, @solutions1, @min_energy1); end
 
       def clone
-        Burrow.new(@hallway.clone, @rooms.clone, @used_energy, @solutions1, @min_energy1, false)
+        Burrow.new(@hallway.clone, @rooms.clone, @used_energy, @solutions1, @min_energy1)
       end
 
       def initialize(str : String)
@@ -143,9 +143,17 @@ module AdventOfCode2021
         @rooms.all? &.solved?
       end
 
-      def solve1 : Int32
-        iterate_over_amphipods
-        @min_energy1
+      def solve1 : Int32?
+        if solved?
+          @solved = true
+          @min_energy1 = used_energy
+        else
+          iterate_over_amphipods
+        end
+        if @solved
+          return @min_energy1
+        end
+        return nil
       end
 
       private def iterate_over_amphipods
@@ -183,7 +191,7 @@ module AdventOfCode2021
           if Burrow.is_entry? i 
             room_ind = (i-2)//2
             if @rooms[ room_ind ].can_push? @hallway[idx]
-              check_next_burrow_to_room idx, room_ind
+              next_burrow_moving_to_room idx, room_ind
             end
           end
         end
@@ -201,30 +209,30 @@ module AdventOfCode2021
         range.step(stepby) do |i|
           break if @hallway[i] != EMPTY
           if Burrow.is_not_entry? i
-            check_next_burrow_from_room idx, i 
+            next_burrow_moving_from_room idx, i 
           end
         end
       end
 
-      private def check_next_burrow_from_room(room_idx, h_i)
+      private def next_burrow_moving_from_room(room_idx, h_i)
         new_burrow = self.clone
         new_burrow.move_amp_from_room(room_idx, h_i)
-        new_burrow.solve1
-        @min_energy1 = Math.min @min_energy1, new_burrow.min_energy1
+        solve_next_burrow new_burrow
       end
 
-      private def check_next_burrow_to_room(h_idx, room_idx)
+      private def next_burrow_moving_to_room(h_idx, room_idx)
         new_burrow = self.clone
         new_burrow.move_amp_to_room(h_idx, room_idx)
-        if new_burrow.solved?
-          @solved = true
-          @min_energy1 = Math.min @min_energy1, new_burrow.used_energy
-        else
-          new_burrow.solve1
-          @min_energy1 = Math.min @min_energy1, new_burrow.min_energy1
-        end
+        solve_next_burrow new_burrow
       end
 
+      private def solve_next_burrow(new_burrow)
+        min_energy = new_burrow.solve1
+        if !min_energy.nil?
+          @solved = true
+          @min_energy1 = Math.min @min_energy1, new_burrow.min_energy1
+        end
+    end
 
       def move_amp_from_room(from_idx : Int32, to_idx : Int32)
         ret = @rooms[from_idx].pop
