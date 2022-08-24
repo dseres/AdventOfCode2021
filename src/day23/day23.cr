@@ -65,16 +65,17 @@ module AdventOfCode2021
       getter rooms = StaticArray(Room, 4).new { |i| AdventOfCode2021::Day23::Room.new(AdventOfCode2021::Day23::AMBER + i.to_u8) }
       getter used_energy = 0
       getter solutions1 = [] of Burrow
-      getter min_energy1 = 0
+      getter min_energy1 = Int32::MAX
+      getter solved = false
 
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
       def initialize; end
 
-      def initialize(@hallway, @rooms, @used_energy, @solutions1, @min_energy1); end
+      def initialize(@hallway, @rooms, @used_energy, @solutions1, @min_energy1, @solved); end
 
       def clone
-        Burrow.new(@hallway.clone, @rooms.clone, @used_energy, @solutions1, @min_energy1)
+        Burrow.new(@hallway.clone, @rooms.clone, @used_energy, @solutions1, @min_energy1, false)
       end
 
       def initialize(str : String)
@@ -83,16 +84,30 @@ module AdventOfCode2021
 
       private def parse_input(input : String)
         lines = input.lines
+        #parse lines
+        hbytes = lines[1].bytes
+        (1..11).each do |i|
+          @hallway[i-1] = hbytes[i]
+        end
+        #parse rooms
         (0...@rooms.size).each do |i|
           first = lines[3].byte_at(3 + 2*i)
           second = lines[2].byte_at(3 + 2*i)
-          @rooms[i] = Room.new(AMBER + i.to_u8, [first, second])
+          if first != EMPTY && second != EMPTY
+            @rooms[i] = Room.new(AMBER + i.to_u8, [first, second])
+          elsif first != EMPTY && second == EMPTY
+            @rooms[i] = Room.new(AMBER + i.to_u8, [first])
+          else 
+            @rooms[i] = Room.new(AMBER + i.to_u8, [] of UInt8)
+          end
         end
       end
 
       def to_s(io : IO) : Nil
         io << "#############\n"
-        io << "#...........#\n"
+        io << "#"
+        @hallway.each { |h| io.write_byte h }
+        io << "#\n"
         first_line_to_s io
         second_line_to_s io
         io << "  #########"
@@ -105,7 +120,7 @@ module AdventOfCode2021
           if @rooms[i].amphipodas.size > 1
             io.write_byte @rooms[i].amphipodas[1]
           else
-            io << EMPTY
+            io.write_byte EMPTY
           end
         end
         io << "###\n"
@@ -118,7 +133,7 @@ module AdventOfCode2021
           unless @rooms[i].amphipodas.empty?
             io.write_byte @rooms[i].amphipodas[0]
           else
-            io << EMPTY
+            io.write_byte EMPTY
           end
         end
         io << "#\n"
@@ -128,9 +143,9 @@ module AdventOfCode2021
         @rooms.all? &.solved?
       end
 
-      def solve1 : Int32?
+      def solve1 : Int32
         iterate_over_amphipods
-        12521
+        @min_energy1
       end
 
       private def iterate_over_amphipods
@@ -142,38 +157,92 @@ module AdventOfCode2021
       end
 
       private def checks_amps_in_hallway
+        @hallway.each_with_index do |h,i|
+          if h != EMPTY
+            check_next_movement_from_hallway i
+          end
+        end
       end
 
       private def checks_amps_in_rooms
-        @rooms.each_with_index do | room, i |
-          if room.can_pop? 
-            check_next_movement room,i
+        @rooms.each_with_index do |room, i|
+          if room.can_pop?
+            check_next_movement_from_room room, i
           end
         end
       end
 
-      private def check_next_movement(idx : Int32)
+      private def check_next_movement_from_hallway(idx : Int32)
+        check_next_movement_from_hallway idx, ((idx-1)..2), -1
+        check_next_movement_from_hallway idx, ((idx+1)..@hallway.size-3), +1
       end
 
-      private def check_next_movement(room : Room, idx : Int32)
-        h = idx * 2 + 2;
-        steps = 0
-        (0...h).reverse_each do |i|
-          steps += 1
-          break if @hallway[i] != EMPTY
-          if Burrow.is_not_entry? i
-            # these fields will be a valid move
-            # move amphipod from rooms[idx] to hallway[i]
+      private def check_next_movement_from_hallway(idx : Int32, range : Range, stepby : Int32)
+        range.step(stepby) do |i|
+          if @hallway[i] == EMPTY
+          if Burrow.is_entry? i 
+            room_ind = (i-2)//2
+            if @rooms[ room_ind ].can_push? @hallway[idx]
+              check_next_burrow_to_room idx, room_ind
+            end
           end
         end
-        steps = 0
-        ((h+1)...@hallway.sizes).each do |i|
-          steps += 1
+        end
+      end
+
+
+      private def check_next_movement_from_room(room : Room, idx : Int32)
+        h = Burrow.index_of_room_entry idx
+        check_next_movement_from_room idx, (0...h), -1
+        check_next_movement_from_room idx, ((h + 1)...@hallway.size), +1
+      end
+
+      private def check_next_movement_from_room(idx, range, stepby)
+        range.step(stepby) do |i|
           break if @hallway[i] != EMPTY
           if Burrow.is_not_entry? i
-            #these fields will be a valid move
-            # move amphipod from rooms[idx] to hallway[i]
+            check_next_burrow_from_room idx, i 
           end
+        end
+      end
+
+      private def check_next_burrow_from_room(room_idx, h_i)
+        new_burrow = self.clone
+        new_burrow.move_amp_from_room(room_idx, h_i)
+        new_burrow.solve1
+        @min_energy1 = Math.min @min_energy1, new_burrow.min_energy1
+      end
+
+      private def check_next_burrow_to_room(h_idx, room_idx)
+        new_burrow = self.clone
+        new_burrow.move_amp_to_room(h_idx, room_idx)
+        if new_burrow.solved?
+          @solved = true
+          @min_energy1 = Math.min @min_energy1, new_burrow.used_energy
+        else
+          new_burrow.solve1
+          @min_energy1 = Math.min @min_energy1, new_burrow.min_energy1
+        end
+      end
+
+
+      def move_amp_from_room(from_idx : Int32, to_idx : Int32)
+        ret = @rooms[from_idx].pop
+        if !ret.nil?
+          amp, steps = ret
+          steps += (Burrow.index_of_room_entry(from_idx) - to_idx).abs
+          @used_energy += Burrow.energy_of(amp)*steps
+          @hallway[to_idx]= amp
+        end
+      end
+
+      def move_amp_to_room(from_idx : Int32, to_idx : Int32)
+        amp = self.hallway[from_idx]
+        self.hallway[from_idx]= EMPTY
+        steps = @rooms[to_idx].push amp
+        if !steps.nil?
+          steps += (Burrow.index_of_room_entry(to_idx) - from_idx).abs
+          @used_energy += Burrow.energy_of(amp)*(steps)
         end
       end
 
@@ -181,120 +250,20 @@ module AdventOfCode2021
         2 + r * 2
       end
 
-      def self.is_entry?( h : Int32) : Bool
+      def self.is_entry?(h : Int32) : Bool
         case h
-        when 2,4,6,8 then true
-        else false
+        when 2, 4, 6, 8 then true
+        else                 false
         end
       end
 
-      def self.is_not_entry?( h : Int32) : Bool
+      def self.is_not_entry?(h : Int32) : Bool
         (0..10).includes?(h) && !Burrow.is_entry?(h)
       end
 
-      private def move_amp_from_room(r,h)
-        amp,energy = @rooms[r].pop
-        energy += h  
+      def self.energy_of(amp : UInt8)
+        @@energies[(amp - AMBER).to_i]
       end
-      
-      #   def check_next_movements
-      #     #puts "Burrow :\n#{self}"
-      #     #puts "Press enter...  "
-      #     #gets
-      #     @amphipodas.each do |a|
-      #       if !on_place? a
-      #         #puts "Find possible new movements of #{a}..."
-      #         find_possible_new_pos(a).each do |b|
-      #           #puts "Found new position: #{b}"
-      #           burrow = next_burrow a,b
-      #           if burrow.solved?
-      #             @solutions1 << burrow
-      #           else
-      #             min_used_energy = @solutions1.min_of? &.used_energy
-      #             pp! min_used_energy, burrow.used_energy, @solutions1.size
-      #             if min_used_energy.nil? || burrow.used_energy < min_used_energy
-      #               burrow.check_next_movements
-      #             end
-      #           end
-      #         end
-      #       end
-      #     end
-      #   end
-
-      #   private def find_possible_new_pos(amp)
-      #     next_amps = [] of Amphipoda
-      #     amp.next_positions.each do |new_pos|
-      #       if is_valid_step?(amp, new_pos)
-      #         new_amp = amp.clone
-      #         new_amp.step new_pos
-      #         if is_final_step?( new_amp )
-      #           #puts "new pos found: #{new_pos}"
-      #           next_amp = new_amp.clone
-      #           next_amp.finish_step
-      #           next_amps << next_amp
-      #         end
-      #         next_amps += find_possible_new_pos(new_amp)
-      #       end
-      #     end
-      #     next_amps
-      #   end
-
-      #   private def on_place?(amp)
-      #     tile = get_tile amp.position
-      #     #pp! "on_place?", amp, tile.type
-      #     return false unless amp.room_to_occupy == tile.type;
-      #     pos_x,pos_y = amp.position
-      #     return true if pos_x == 3
-      #     other_tile = get_tile({3 , pos_y})
-      #     return other_tile.has_good_amphipod?
-      #   end
-
-      #   private def is_valid_step?(amp, new_pos)
-      #     tile = get_tile new_pos
-      #     #pp! "is_valid_step?", amp, new_pos, tile.type
-      #     return false if tile.is_wall? || !tile.amp.nil?
-      #     starting_tile = get_tile amp.starting_position
-      #     #pp! starting_tile.type
-      #     #starting tile can be room or hallway
-      #     return true if starting_tile.is_room? # amp can step to any other tile from a room tile
-      #     return true if tile.is_hallway? || tile.is_no_stop?
-      #     other_room = get_tile({ 5 - new_pos[0], new_pos[1]}) #rooms have coordinates x = 2 or x = 3
-      #     return tile.type == amp.room_to_occupy && other_room.has_no_bad_amphipod?
-      #   end
-
-      #   private def is_final_step?(amp)
-      #     tile = get_tile amp.position
-      #     starting_tile = get_tile amp.starting_position
-      #     #pp! "is_final_step?", amp, tile.type, starting_tile.type
-      #     if tile.is_hallway? && starting_tile.is_room?
-      #       return true
-      #     elsif tile.is_room? && starting_tile.is_hallway?
-      #       #pp! other_room
-      #       return true if amp.position[0] == 3  # ampiphod can stop only on bottoem
-      #       other_room = get_tile({ 3, amp.position[1]}) #rooms have coordinates x = 2 or x = 3
-      #       return other_room.has_good_amphipod?
-      #     end
-      #     return false
-      #   end
-
-      #   private def get_tile(pos)
-      #     @tiles[pos[0]][pos[1]]
-      #   end
-
-      #   private def next_burrow(amp_old, amp_new)
-      #     tiles = @tiles.clone
-      #     tile = get_tile amp_new.position
-      #     tile_old = get_tile amp_old.position
-      #     set_tile tiles, amp_new.position, Tile.new( tile.type, amp_new)
-      #     set_tile tiles, amp_old.position, Tile.new( tile_old.type, nil)
-      #     amps = @amphipodas.dup
-      #     amps[amp_old.id] = amp_new
-      #     Burrow.new tiles, amps, @solutions1
-      #   end
-
-      #   private def set_tile(tiles, pos, tile)
-      #     tiles[pos[0]][pos[1]] = tile
-      #   end
 
       def solve2
         0
