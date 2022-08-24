@@ -306,6 +306,28 @@ module Day23Spec
         b = Burrow.new simple
         b.to_s.should eq(simple)
         b.solve1.should eq(2)
+
+        simple = <<-INPUT
+        #############
+        #.A.A.......#
+        ###.#B#C#D###
+          #.#B#C#D#
+          #########
+        INPUT
+        b = Burrow.new simple
+        b.to_s.should eq(simple)
+        b.solve1.should eq(5)
+
+        simple = <<-INPUT
+        #############
+        #.A.........#
+        ###B#.#C#D###
+          #A#B#C#D#
+          #########
+        INPUT
+        b = Burrow.new simple
+        b.to_s.should eq(simple)
+        b.solve1.should eq(42)
       end
 
       it "solution1 of test input should be 12521" do
