@@ -336,9 +336,22 @@ module Day23Spec
         b.solve1.should eq(42)
       end
 
+
+      it "solve function should return nil if problem not solvable" do
+        not_solvable = <<-INPUT
+        #############
+        #.B.A.......#
+        ###.#.#C#D###
+          #B#D#C#A#
+          #########
+        INPUT
+        b = Burrow.new not_solvable
+        b.solve1.should be_nil
+      end
+
       it "solution1 of test input should be 12521" do
         b = Burrow.new input
-        # b.solve1.should eq(12521)
+        b.solve1.should eq(12521)
       end
     end
   end
