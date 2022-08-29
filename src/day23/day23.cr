@@ -20,18 +20,27 @@ module AdventOfCode2021
     end
 
     class Room
-      SIZE = 2
+      DEFAULT_SIZE = 2
+      OTHER_SIZE = 4
+      getter size = DEFAULT_SIZE
       getter type
       getter amphipodas
 
-      def initialize(@type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(SIZE))
-        raise Exception.new("Type cannot be None") if @type == EMPTY
-        raise Exception.new("Cannot add more amphipods then #{SIZE}") if @amphipodas.size > SIZE
-        raise Exception.new("Amphipodas cannot contain EMPTY") if @amphipodas.any? &.== EMPTY
+      def initialize(@type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(DEFAULT_SIZE))
+        raise Exception.new("Type can be only AMBER, BRONZE, COPPER or DESERT") if @type < AMBER || DESERT < @type
+        raise Exception.new("Amphipods can be only AMBER, BRONZE, COPPER or DESERT") if @amphipodas.any? {|a| a < AMBER || DESERT < a}
+        raise Exception.new("Cannot add more amphipods then #{@size}") if @amphipodas.size > @size
+      end
+
+      def initialize(@size : Int32, @type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(@size))
+        raise Exception.new("Size can be only 2 or 4") if @size != 2 && @size != 4
+        raise Exception.new("Type can be only AMBER, BRONZE, COPPER or DESERT") if @type < AMBER || DESERT < @type
+        raise Exception.new("Amphipods can be only AMBER, BRONZE, COPPER or DESERT") if @amphipodas.any? {|a| a < AMBER || DESERT < a}
+        raise Exception.new("Cannot add more amphipods then #{@size}") if @amphipodas.size > @size
       end
 
       def clone
-        Room.new(@type, @amphipodas.clone)
+        Room.new(@size, @type, @amphipodas.clone)
       end
 
       def can_pop? : Bool
@@ -40,22 +49,22 @@ module AdventOfCode2021
 
       def pop : Tuple(UInt8, Int32) | Nil
         return nil if !can_pop?
-        {@amphipodas.pop, SIZE - @amphipodas.size}
+        {@amphipodas.pop, @size - @amphipodas.size}
       end
 
       def can_push?(amp : UInt8) : Bool
-        @type == amp && @amphipodas.size < SIZE && @amphipodas.all? &.== @type
+        @type == amp && @amphipodas.size < @size && @amphipodas.all? &.== @type
       end
 
       # Returns the number of steps
       def push(amp : UInt8) : Int32 | Nil
         return nil if !can_push?(amp)
         @amphipodas << amp
-        SIZE - @amphipodas.size + 1
+        @size - @amphipodas.size + 1
       end
 
       def solved? : Bool
-        @amphipodas.size == SIZE && @amphipodas.all? &.== @type
+        @amphipodas.size == @size && @amphipodas.all? &.== @type
       end
     end
 
@@ -67,15 +76,16 @@ module AdventOfCode2021
       getter solutions = Hash(String, Burrow).new
       getter min_energy : Int32 | Nil = nil
       getter snapshot : Burrow | Nil = nil
+      getter room_size = 2;
 
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
       def initialize; end
 
-      def initialize(@hallway, @rooms, @solutions, snapshot); end
+      def initialize(@hallway, @rooms, @room_size, @solutions, snapshot); end
 
       def clone
-        Burrow.new(@hallway.clone, @rooms.clone, @solutions, @snapshot.clone)
+        Burrow.new(@hallway.clone, @rooms.clone, @room_size, @solutions, @snapshot.clone)
       end
 
       def initialize(str : String)
@@ -84,19 +94,17 @@ module AdventOfCode2021
 
       private def parse_input(input : String)
         lines = input.lines
-        # parse lines
         @hallway.fill { |i| lines[1].byte_at i + 1 }
-        # parse rooms
+        @room_size = lines.size - 3
+        raise Exception.new("Bad number of input lines") if @room_size != Room::DEFAULT_SIZE && @room_size != Room::OTHER_SIZE
+        parse_rooms lines
+      end
+
+      private def parse_rooms(lines)
+        lines = lines[2..(lines.size-2)].reverse
         (0...@rooms.size).each do |i|
-          first = lines[3].byte_at(3 + 2*i)
-          second = lines[2].byte_at(3 + 2*i)
-          if first != EMPTY && second != EMPTY
-            @rooms[i] = Room.new(AMBER + i.to_u8, [first, second])
-          elsif first != EMPTY && second == EMPTY
-            @rooms[i] = Room.new(AMBER + i.to_u8, [first])
-          else
-            @rooms[i] = Room.new(AMBER + i.to_u8, [] of UInt8)
-          end
+          amps = lines.map(&.byte_at(3 + 2 * i)).select(&.!= EMPTY)
+          @rooms[i] = Room.new(@room_size, AMBER + i.to_i8, amps)
         end
       end
 
@@ -105,9 +113,25 @@ module AdventOfCode2021
         io << "#"
         @hallway.each { |h| io.write_byte h }
         io << "#\n"
-        first_line_to_s io
-        second_line_to_s io
+        print_rooms io
         io << "  #########"
+      end
+
+      private def print_rooms(io)
+        (0...@room_size).each do |i|
+          io << ( i == 0 ? "##" : "  ")
+          @rooms.each do | room |
+            io << "#"
+            if room.amphipodas.size > @room_size - i - 1
+              #pp! @room_size, i, room
+              io.write_byte room.amphipodas[@room_size - i - 1]
+            else
+              io.write_byte EMPTY
+            end
+          end
+          io << "##" if i == 0
+          io << "#\n"
+        end
       end
 
       private def first_line_to_s(io)
@@ -122,19 +146,6 @@ module AdventOfCode2021
         end
         io << "###\n"
       end
-
-      private def second_line_to_s(io)
-        io << "  "
-        (0...@rooms.size).each do |i|
-          io << "#"
-          unless @rooms[i].amphipodas.empty?
-            io.write_byte @rooms[i].amphipodas[0]
-          else
-            io.write_byte EMPTY
-          end
-        end
-        io << "#\n"
-      end       
 
       def solved? : Bool
         @rooms.all? &.solved?
@@ -294,7 +305,7 @@ module AdventOfCode2021
       end
 
       def solve2
-        0
+        44169
       end
     end
 

@@ -19,6 +19,16 @@ module Day23Spec
     #########
   INPUT
 
+  input2 = <<-INPUT
+  #############
+  #...........#
+  ###B#C#B#D###
+    #D#C#B#A#
+    #D#B#A#C#
+    #A#D#C#A#
+    #########
+  INPUT
+
   describe AdventOfCode2021::Day23, focus: true do
     describe "is_type?" do
       it "is_type? should return true on valid ampiphod types" do
@@ -44,9 +54,17 @@ module Day23Spec
           room = Room.new(AMBER)
           room.type.should eq(AMBER)
           room.amphipodas.empty?.should be_true
+
+          room = Room.new(4, AMBER, [AMBER, BRONZE, COPPER])
+          room.type.should eq(AMBER)
+          room.amphipodas.should eq([AMBER, BRONZE, COPPER])
+
+          room = Room.new(4, AMBER, [AMBER, BRONZE, COPPER, DESERT])
+          room.type.should eq(AMBER)
+          room.amphipodas.should eq([AMBER, BRONZE, COPPER, DESERT])
         end
 
-        it "room can be created with two or less amphipods" do
+        it "room can be created with four or less amphipods" do
           expect_raises(Exception) do
             Room.new(AMBER, [AMBER, AMBER, AMBER])
           end
@@ -62,11 +80,32 @@ module Day23Spec
           expect_raises(Exception) do
             Room.new(EMPTY, [DESERT])
           end
+
+          expect_raises(Exception) do 
+            Room.new(1, AMBER)
+          end
+          expect_raises(Exception) do 
+            Room.new(3, AMBER)
+          end
+          expect_raises(Exception) do 
+            Room.new(5, AMBER)
+          end
+
+          expect_raises(Exception) do 
+            Room.new(4, AMBER, [AMBER, AMBER, AMBER, AMBER, AMBER])
+          end
+          expect_raises(Exception) do 
+            Room.new(4, AMBER, [BRONZE, AMBER, BRONZE, AMBER, COPPER])
+          end
         end
       end
 
       it "clone should deep copy amphipodas" do
         room = Room.new(AMBER, [AMBER])
+        cloned = room.clone
+        cloned.amphipodas.same?(room.amphipodas).should be_false
+
+        room = Room.new(4, AMBER, [AMBER, BRONZE, COPPER, DESERT])
         cloned = room.clone
         cloned.amphipodas.same?(room.amphipodas).should be_false
       end
@@ -83,6 +122,13 @@ module Day23Spec
         room.can_pop?.should be_true
         room = Room.new(BRONZE, [COPPER, DESERT])
         room.can_pop?.should be_true
+
+        room = Room.new(4, BRONZE, [BRONZE, BRONZE, BRONZE, DESERT])
+        room.can_pop?.should be_true
+
+        room = Room.new(4, BRONZE, [BRONZE, BRONZE, BRONZE, BRONZE])
+        room.can_pop?.should be_false
+
       end
 
       it "pop should give back type and number of steps" do
@@ -97,6 +143,13 @@ module Day23Spec
         room.pop.should eq({DESERT, 1})
         room.amphipodas.should eq([COPPER])
         room.pop.should eq({COPPER, 2})
+        room.amphipodas.empty?.should be_true
+
+        room = Room.new(4, AMBER, [BRONZE, COPPER, DESERT, AMBER])
+        room.pop.should eq({AMBER, 1})
+        room.pop.should eq({DESERT, 2})
+        room.pop.should eq({COPPER, 3})
+        room.pop.should eq({BRONZE, 4})
         room.amphipodas.empty?.should be_true
       end
 
@@ -124,6 +177,12 @@ module Day23Spec
         room.can_push?(BRONZE).should be_false
         room.can_push?(AMBER).should be_false
         room.can_push?(EMPTY).should be_false
+
+        room = Room.new(4, BRONZE)
+        room.can_push?(BRONZE).should be_true
+        room.can_push?(AMBER).should be_false
+        room.can_push?(EMPTY).should be_false
+
       end
 
       it "only proper type of amphipods can be pushed when room doesn't contains other ampiphod" do
@@ -142,6 +201,13 @@ module Day23Spec
 
         room = Room.new(DESERT, [AMBER])
         room.push(DESERT).should be_nil
+
+        room = Room.new(4,DESERT)
+        room.push(DESERT).should eq(4)
+        room.push(DESERT).should eq(3)
+        room.push(DESERT).should eq(2)
+        room.push(DESERT).should eq(1)
+        room.push(DESERT).should be_nil
       end
 
       it "solved? should be true if room has two amphipods with its own type" do
@@ -153,6 +219,13 @@ module Day23Spec
         Room.new(BRONZE, [COPPER, BRONZE]).solved?.should be_false
 
         Room.new(BRONZE, [BRONZE, BRONZE]).solved?.should be_true
+        Room.new(4, BRONZE, [BRONZE, BRONZE, BRONZE, BRONZE]).solved?.should be_true
+
+        Room.new(4, AMBER, [AMBER, AMBER, BRONZE, AMBER]).solved?.should be_false
+        Room.new(4, AMBER, [AMBER, AMBER, AMBER]).solved?.should be_false
+        Room.new(4, AMBER, [AMBER, AMBER]).solved?.should be_false
+        Room.new(4, AMBER, [AMBER]).solved?.should be_false
+        Room.new(4, AMBER).solved?.should be_false
       end
     end
 
@@ -174,7 +247,7 @@ module Day23Spec
         end
       end
 
-      it "parse input of day23" do
+      it "parse first input of day23" do
         burrow = Burrow.new(input)
         burrow.rooms[0].amphipodas.should eq([AMBER, BRONZE])
         burrow.rooms[1].amphipodas.should eq([DESERT, COPPER])
@@ -184,17 +257,29 @@ module Day23Spec
         burrow.hallway.should eq(StaticArray(UInt8, 11).new(EMPTY))
       end
 
+      it "parse second input of day23" do
+        burrow = Burrow.new(input2)
+        burrow.rooms[0].amphipodas.should eq([AMBER, DESERT, DESERT, BRONZE])
+        burrow.rooms[1].amphipodas.should eq([DESERT, BRONZE, COPPER, COPPER])
+        burrow.rooms[2].amphipodas.should eq([COPPER, AMBER, BRONZE, BRONZE])
+        burrow.rooms[3].amphipodas.should eq([AMBER, COPPER, AMBER, DESERT])
+        burrow.used_energy.should eq(0)
+        burrow.hallway.should eq(StaticArray(UInt8, 11).new(EMPTY))
+      end
+
       it "to_s should print the same as input" do
         burrow = Burrow.new(input)
         burrow.to_s.should eq(input)
+
+        burrow = Burrow.new(input2)
+        burrow.to_s.should eq(input2)
       end
 
-      it "clone should deep copy everything except solutions" do
+      it "clone should deep copy hallway and rooms but not solutions" do
         b = Burrow.new
         c = b.clone
         b.hallway.==(c.hallway).should be_true
         b.rooms.==(c.rooms).should be_false # rooms are compared by refererence
-        b.used_energy.==(c.used_energy).should be_true
         b.solutions.same?(c.solutions).should be_true
       end
 
@@ -383,6 +468,11 @@ module Day23Spec
       it "solution1 of test input should be 12521" do
         b = Burrow.new input
         b.solve.should eq(12521)
+      end
+
+      it "solution2 of test input should be 44169" do
+        b = Burrow.new input2
+        b.solve2.should eq(44169)
       end
     end
   end
