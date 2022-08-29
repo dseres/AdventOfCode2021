@@ -422,14 +422,14 @@ module Day23Spec
       end
 
       it "a little bit more complicated example to solve function" do
-        input2 = <<-INPUT
+        local_input = <<-INPUT
         #############
         #...........#
         ###D#B#C#D###
           #A#B#C#A#
           #########
         INPUT
-        b = Burrow.new input2
+        b = Burrow.new local_input
         b.move_amp_r2h 3, 7
         b.used_energy.should eq(2000)
         b.move_amp_r2h 3, 9
@@ -444,7 +444,7 @@ module Day23Spec
         b.used_energy.should eq(13011)
         b.solved?.should be_true
         
-        b = Burrow.new input2
+        b = Burrow.new local_input
         b.solve.should eq(2000 + 3 + 3000 + 8000 + 8)
       end
 
@@ -472,7 +472,7 @@ module Day23Spec
 
       it "solution2 of test input should be 44169" do
         b = Burrow.new input2
-        b.solve2.should eq(44169)
+        b.solve.should eq(44169)
       end
     end
   end

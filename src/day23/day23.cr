@@ -75,6 +75,7 @@ module AdventOfCode2021
       getter used_energy = 0
       getter solutions = Hash(String, Burrow).new
       getter min_energy : Int32 | Nil = nil
+      #shapshot is for debugging. 
       getter snapshot : Burrow | Nil = nil
       getter room_size = 2;
 
@@ -304,15 +305,13 @@ module AdventOfCode2021
         @@energies[(amp - AMBER).to_i]
       end
 
-      def solve2
-        44169
-      end
     end
 
     def main
-      burrow = Burrow.new(File.read "./src/day#{DAY}/input.txt")
-
-      puts "Solutions of day#{DAY} : #{burrow.solve} #{burrow.solve2}"
+      burrow1 = Burrow.new(File.read "./src/day#{DAY}/input.txt")
+      burrow2 = Burrow.new(File.read "./src/day#{DAY}/input2.txt")
+      
+      puts "Solutions of day#{DAY} : #{burrow1.solve} #{burrow2.solve}"
     end
   end
 end
