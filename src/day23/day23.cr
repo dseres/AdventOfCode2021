@@ -66,15 +66,16 @@ module AdventOfCode2021
       getter used_energy = 0
       getter solutions = Hash(String, Burrow).new
       getter min_energy : Int32 | Nil = nil
+      getter snapshot : Burrow | Nil = nil
 
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
       def initialize; end
 
-      def initialize(@hallway, @rooms, @used_energy, @solutions); end
+      def initialize(@hallway, @rooms, @solutions, snapshot); end
 
       def clone
-        Burrow.new(@hallway.clone, @rooms.clone, @used_energy, @solutions)
+        Burrow.new(@hallway.clone, @rooms.clone, @solutions, @snapshot.clone)
       end
 
       def initialize(str : String)
@@ -145,20 +146,29 @@ module AdventOfCode2021
         # gets
 
         if solved?
-          @min_energy = @used_energy
-          return @used_energy
+          return @used_energy + ( @min_energy || 0 )
         end
 
         # check cached solved or not solvable burrows
         cached = @solutions[to_s]?
         if !cached.nil?
-          return cached.min_energy
+          me = cached.min_energy
+          if me.nil?
+            return nil
+          else
+            return @used_energy + me
+          end
         end
 
         iterate_over_amphipods
         #cache solved state
         @solutions[to_s] = self
-        return @min_energy
+        me = @min_energy
+        if me.nil?
+          return nil
+        else
+          return @used_energy + ( @min_energy || 0 )
+        end
       end
 
       private def iterate_over_amphipods
@@ -204,7 +214,7 @@ module AdventOfCode2021
       private def check_next_movement_r2h(room : Room, idx : Int32)
         h = Burrow.room_index_to_hallway idx
         check_next_movement_r2h idx, ((h - 1)..0), -1
-        check_next_movement_r2h idx, ((h + 1)...@hallway.size), +1
+        check_next_movement_r2h idx, ((h + 1)..(@hallway.size-1)), +1
       end
 
       private def check_next_movement_r2h(idx, range, stepby)
@@ -254,10 +264,20 @@ module AdventOfCode2021
         me = @min_energy
         next_me = new_burrow.solve
         if !next_me.nil? && ( me.nil? || !me.nil? && next_me < me ) 
+          @snapshot = new_burrow
           @min_energy = next_me
         end
       end
-      
+
+      def print_snapshots
+        puts self
+        puts "used_energy: #{used_energy}, min_energy: #{min_energy}"
+        snapshot = @snapshot
+        if !snapshot.nil?
+          snapshot.print_snapshots
+        end
+      end
+
       def self.room_index_to_hallway(r : Int32) : Int32
         2 + r * 2
       end
