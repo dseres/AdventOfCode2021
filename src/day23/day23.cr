@@ -133,7 +133,7 @@ module AdventOfCode2021
           end
         end
         io << "#\n"
-      end
+      end       
 
       def solved? : Bool
         @rooms.all? &.solved?
@@ -145,6 +145,7 @@ module AdventOfCode2021
         # gets
 
         if solved?
+          @min_energy = @used_energy
           return @used_energy
         end
 
@@ -215,9 +216,9 @@ module AdventOfCode2021
         end
       end
 
-      private def next_burrow_moving_r2h(room_idx, h_i)
+      private def next_burrow_moving_r2h(room_idx, h_idx)
         new_burrow = self.clone
-        new_burrow.move_amp_r2h(room_idx, h_i)
+        new_burrow.move_amp_r2h(room_idx, h_idx)
         solve_next_burrow new_burrow
       end
 
@@ -225,16 +226,6 @@ module AdventOfCode2021
         new_burrow = self.clone
         new_burrow.move_amp_h2r(h_idx, room_idx)
         solve_next_burrow new_burrow
-      end
-
-      private def solve_next_burrow(new_burrow)
-        me = @min_energy
-        next_me = new_burrow.solve
-        if me.nil?
-          @min_energy = next_me
-        elsif !next_me.nil?
-          @min_energy = Math.min me, next_me
-        end
       end
 
       # move amp from room to hallway
@@ -259,6 +250,14 @@ module AdventOfCode2021
         end
       end
 
+      private def solve_next_burrow(new_burrow)
+        me = @min_energy
+        next_me = new_burrow.solve
+        if !next_me.nil? && ( me.nil? || !me.nil? && next_me < me ) 
+          @min_energy = next_me
+        end
+      end
+      
       def self.room_index_to_hallway(r : Int32) : Int32
         2 + r * 2
       end
