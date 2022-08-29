@@ -153,22 +153,14 @@ module AdventOfCode2021
         cached = @solutions[to_s]?
         if !cached.nil?
           me = cached.min_energy
-          if me.nil?
-            return nil
-          else
-            return @used_energy + me
-          end
+          return me.nil? ? nil :  @used_energy + me
         end
 
         iterate_over_amphipods
         #cache solved state
         @solutions[to_s] = self
         me = @min_energy
-        if me.nil?
-          return nil
-        else
-          return @used_energy + ( @min_energy || 0 )
-        end
+        return me.nil? ? nil : @used_energy + ( @min_energy || 0 )
       end
 
       private def iterate_over_amphipods
