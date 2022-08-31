@@ -27,7 +27,6 @@ module AdventOfCode2021
         params[i][1] = line2.split(' ')[2].to_i
         params[i][2] = line3.split(' ')[2].to_i
       end
-      puts params
       params
     end
 
@@ -35,7 +34,7 @@ module AdventOfCode2021
       input.lines
     end
 
-    def compute_z(params : Array(Array(Int32)), iteration : Int32, state : Hash(Int64, Int64)) : Hash(Int64, Int64)
+    def compute_largest(params : Array(Array(Int32)), iteration : Int32, state : Hash(Int64, Int64)) : Hash(Int64, Int64)
       new_state = Hash(Int64, Int64).new
       param1,param2, param3 = params[iteration-1]
       #pp! param1,param2, param3 
@@ -52,17 +51,39 @@ module AdventOfCode2021
       end
       puts "Iteration : #{iteration}, number of states : #{state.size}"
       return new_state if iteration == 14
-      return compute_z params, iteration + 1, new_state
+      return compute_largest params, iteration + 1, new_state
+    end
+
+    def compute_smallest(params : Array(Array(Int32)), iteration : Int32, state : Hash(Int64, Int64)) : Hash(Int64, Int64)
+      new_state = Hash(Int64, Int64).new
+      param1,param2, param3 = params[iteration-1]
+      #pp! param1,param2, param3 
+      state.each do |prev_z,prev_input|
+        #inputs:
+        (1..9).reverse_each do |input|
+          x = ( ( prev_z % 26 + param2) == input ? 0 : 1 )
+          z = prev_z // param1 * (25 * x + 1)
+          y = ( input + param3 ) * x
+          z = z + y
+          #pp! x,y,z
+          new_state[z] = prev_input * 10 + input
+        end
+      end
+      puts "Iteration : #{iteration}, number of states : #{state.size}"
+      return new_state if iteration == 14
+      return compute_smallest params, iteration + 1, new_state
     end
 
     def solution1(input) : Int64
       params = get_params input
-      states = compute_z params, 1, { 0_i64 => 0_i64}
+      states = compute_largest params, 1, { 0_i64 => 0_i64}
       states[0]
     end
 
-    def solution2(input) : Int32
-      0
+    def solution2(input) : Int64
+      params = get_params input
+      states = compute_smallest params, 1, { 0_i64 => 0_i64}
+      states[0]
     end
 
 
