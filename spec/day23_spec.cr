@@ -29,7 +29,7 @@ module Day23Spec
     #########
   INPUT
 
-  describe AdventOfCode2021::Day23, focus: true do
+  describe AdventOfCode2021::Day23 do
     describe "is_type?" do
       it "is_type? should return true on valid ampiphod types" do
         AdventOfCode2021::Day23.is_type?(AMBER).should be_true
