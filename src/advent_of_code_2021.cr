@@ -22,9 +22,10 @@ require "./day21"
 require "./day22"
 require "./day23"
 require "./day24"
+require "./day25"
 
 module AdventOfCode2021
-  VERSION = "0.23.0"
+  VERSION = "0.25.0"
 
   # Day1.main
   # Day2.main
@@ -49,5 +50,6 @@ module AdventOfCode2021
   # Day21.main
   # Day22.main
   # Day23.main
-  Day24.main
+  # Day24.main
+  Day25.main
 end

@@ -5,12 +5,12 @@ module AdventOfCode2021
     DAY = 24
 
     def break_lines(input : String)
-      table = Array(String).new 18,"| "
-      input.lines.each_with_index do |line,i|
-        table[i%18] += line.ljust(9) + "|"
+      table = Array(String).new 18, "| "
+      input.lines.each_with_index do |line, i|
+        table[i % 18] += line.ljust(9) + "|"
       end
-      puts "|"+ (1..14).map{|i| "Program#{i}|"}.sum
-      puts table[0].gsub(/[^|]/){"-"}
+      puts "|" + (1..14).map { |i| "Program#{i}|" }.sum
+      puts table[0].gsub(/[^|]/) { "-" }
       table.each do |line|
         puts line
       end
@@ -18,7 +18,7 @@ module AdventOfCode2021
 
     def get_params(input : String)
       lines = input.lines
-      params = Array(Array(Int32)).new(14){Array.new(3,0)}
+      params = Array(Array(Int32)).new(14) { Array.new(3, 0) }
       (0...14).each do |i|
         line1 = lines[i*18 + 4]
         line2 = lines[i*18 + 5]
@@ -36,16 +36,16 @@ module AdventOfCode2021
 
     def compute_largest(params : Array(Array(Int32)), iteration : Int32, state : Hash(Int64, Int64)) : Hash(Int64, Int64)
       new_state = Hash(Int64, Int64).new
-      param1,param2, param3 = params[iteration-1]
-      #pp! param1,param2, param3 
-      state.each do |prev_z,prev_input|
-        #inputs:
+      param1, param2, param3 = params[iteration - 1]
+      # pp! param1,param2, param3
+      state.each do |prev_z, prev_input|
+        # inputs:
         (1..9).each do |input|
-          x = ( ( prev_z % 26 + param2) == input ? 0 : 1 )
+          x = ((prev_z % 26 + param2) == input ? 0 : 1)
           z = prev_z // param1 * (25 * x + 1)
-          y = ( input + param3 ) * x
+          y = (input + param3) * x
           z = z + y
-          #pp! x,y,z
+          # pp! x,y,z
           new_state[z] = prev_input * 10 + input
         end
       end
@@ -56,16 +56,16 @@ module AdventOfCode2021
 
     def compute_smallest(params : Array(Array(Int32)), iteration : Int32, state : Hash(Int64, Int64)) : Hash(Int64, Int64)
       new_state = Hash(Int64, Int64).new
-      param1,param2, param3 = params[iteration-1]
-      #pp! param1,param2, param3 
-      state.each do |prev_z,prev_input|
-        #inputs:
+      param1, param2, param3 = params[iteration - 1]
+      # pp! param1,param2, param3
+      state.each do |prev_z, prev_input|
+        # inputs:
         (1..9).reverse_each do |input|
-          x = ( ( prev_z % 26 + param2) == input ? 0 : 1 )
+          x = ((prev_z % 26 + param2) == input ? 0 : 1)
           z = prev_z // param1 * (25 * x + 1)
-          y = ( input + param3 ) * x
+          y = (input + param3) * x
           z = z + y
-          #pp! x,y,z
+          # pp! x,y,z
           new_state[z] = prev_input * 10 + input
         end
       end
@@ -76,21 +76,20 @@ module AdventOfCode2021
 
     def solution1(input) : Int64
       params = get_params input
-      states = compute_largest params, 1, { 0_i64 => 0_i64}
+      states = compute_largest params, 1, {0_i64 => 0_i64}
       states[0]
     end
 
     def solution2(input) : Int64
       params = get_params input
-      states = compute_smallest params, 1, { 0_i64 => 0_i64}
+      states = compute_smallest params, 1, {0_i64 => 0_i64}
       states[0]
     end
 
-
     def main
       input = File.read "./src/day#{DAY}/input.txt"
-      #break_lines input
-      #params = get_params input
+      # break_lines input
+      # params = get_params input
       puts "Solutions of day#{DAY} : #{solution1 input} #{solution2 input}"
     end
   end

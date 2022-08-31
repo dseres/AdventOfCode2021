@@ -81,20 +81,20 @@ module Day23Spec
             Room.new(EMPTY, [DESERT])
           end
 
-          expect_raises(Exception) do 
+          expect_raises(Exception) do
             Room.new(1, AMBER)
           end
-          expect_raises(Exception) do 
+          expect_raises(Exception) do
             Room.new(3, AMBER)
           end
-          expect_raises(Exception) do 
+          expect_raises(Exception) do
             Room.new(5, AMBER)
           end
 
-          expect_raises(Exception) do 
+          expect_raises(Exception) do
             Room.new(4, AMBER, [AMBER, AMBER, AMBER, AMBER, AMBER])
           end
-          expect_raises(Exception) do 
+          expect_raises(Exception) do
             Room.new(4, AMBER, [BRONZE, AMBER, BRONZE, AMBER, COPPER])
           end
         end
@@ -128,7 +128,6 @@ module Day23Spec
 
         room = Room.new(4, BRONZE, [BRONZE, BRONZE, BRONZE, BRONZE])
         room.can_pop?.should be_false
-
       end
 
       it "pop should give back type and number of steps" do
@@ -182,7 +181,6 @@ module Day23Spec
         room.can_push?(BRONZE).should be_true
         room.can_push?(AMBER).should be_false
         room.can_push?(EMPTY).should be_false
-
       end
 
       it "only proper type of amphipods can be pushed when room doesn't contains other ampiphod" do
@@ -202,7 +200,7 @@ module Day23Spec
         room = Room.new(DESERT, [AMBER])
         room.push(DESERT).should be_nil
 
-        room = Room.new(4,DESERT)
+        room = Room.new(4, DESERT)
         room.push(DESERT).should eq(4)
         room.push(DESERT).should eq(3)
         room.push(DESERT).should eq(2)
@@ -443,7 +441,7 @@ module Day23Spec
         b.move_amp_h2r 9, 0
         b.used_energy.should eq(13011)
         b.solved?.should be_true
-        
+
         b = Burrow.new local_input
         b.solve.should eq(2000 + 3 + 3000 + 8000 + 8)
       end

@@ -21,21 +21,21 @@ module AdventOfCode2021
 
     class Room
       DEFAULT_SIZE = 2
-      OTHER_SIZE = 4
+      OTHER_SIZE   = 4
       getter size = DEFAULT_SIZE
       getter type
       getter amphipodas
 
       def initialize(@type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(DEFAULT_SIZE))
         raise Exception.new("Type can be only AMBER, BRONZE, COPPER or DESERT") if @type < AMBER || DESERT < @type
-        raise Exception.new("Amphipods can be only AMBER, BRONZE, COPPER or DESERT") if @amphipodas.any? {|a| a < AMBER || DESERT < a}
+        raise Exception.new("Amphipods can be only AMBER, BRONZE, COPPER or DESERT") if @amphipodas.any? { |a| a < AMBER || DESERT < a }
         raise Exception.new("Cannot add more amphipods then #{@size}") if @amphipodas.size > @size
       end
 
       def initialize(@size : Int32, @type : UInt8, @amphipodas : Array(UInt8) = Array(UInt8).new(@size))
         raise Exception.new("Size can be only 2 or 4") if @size != 2 && @size != 4
         raise Exception.new("Type can be only AMBER, BRONZE, COPPER or DESERT") if @type < AMBER || DESERT < @type
-        raise Exception.new("Amphipods can be only AMBER, BRONZE, COPPER or DESERT") if @amphipodas.any? {|a| a < AMBER || DESERT < a}
+        raise Exception.new("Amphipods can be only AMBER, BRONZE, COPPER or DESERT") if @amphipodas.any? { |a| a < AMBER || DESERT < a }
         raise Exception.new("Cannot add more amphipods then #{@size}") if @amphipodas.size > @size
       end
 
@@ -75,10 +75,9 @@ module AdventOfCode2021
       getter used_energy = 0
       getter solutions = Hash(String, Burrow).new
       getter min_energy : Int32 | Nil = nil
-      #shapshot is for debugging. 
+      # shapshot is for debugging.
       getter snapshot : Burrow | Nil = nil
-      getter room_size = 2;
-
+      getter room_size = 2
       @@energies : StaticArray(Int32, 4) = StaticArray[1, 10, 100, 1000]
 
       def initialize; end
@@ -102,7 +101,7 @@ module AdventOfCode2021
       end
 
       private def parse_rooms(lines)
-        lines = lines[2..(lines.size-2)].reverse
+        lines = lines[2..(lines.size - 2)].reverse
         (0...@rooms.size).each do |i|
           amps = lines.map(&.byte_at(3 + 2 * i)).select(&.!= EMPTY)
           @rooms[i] = Room.new(@room_size, AMBER + i.to_i8, amps)
@@ -120,11 +119,11 @@ module AdventOfCode2021
 
       private def print_rooms(io)
         (0...@room_size).each do |i|
-          io << ( i == 0 ? "##" : "  ")
-          @rooms.each do | room |
+          io << (i == 0 ? "##" : "  ")
+          @rooms.each do |room|
             io << "#"
             if room.amphipodas.size > @room_size - i - 1
-              #pp! @room_size, i, room
+              # pp! @room_size, i, room
               io.write_byte room.amphipodas[@room_size - i - 1]
             else
               io.write_byte EMPTY
@@ -158,21 +157,21 @@ module AdventOfCode2021
         # gets
 
         if solved?
-          return @used_energy + ( @min_energy || 0 )
+          return @used_energy + (@min_energy || 0)
         end
 
         # check cached solved or not solvable burrows
         cached = @solutions[to_s]?
         if !cached.nil?
           me = cached.min_energy
-          return me.nil? ? nil :  @used_energy + me
+          return me.nil? ? nil : @used_energy + me
         end
 
         iterate_over_amphipods
-        #cache solved state
+        # cache solved state
         @solutions[to_s] = self
         me = @min_energy
-        return me.nil? ? nil : @used_energy + ( @min_energy || 0 )
+        return me.nil? ? nil : @used_energy + (@min_energy || 0)
       end
 
       private def iterate_over_amphipods
@@ -218,7 +217,7 @@ module AdventOfCode2021
       private def check_next_movement_r2h(room : Room, idx : Int32)
         h = Burrow.room_index_to_hallway idx
         check_next_movement_r2h idx, ((h - 1)..0), -1
-        check_next_movement_r2h idx, ((h + 1)..(@hallway.size-1)), +1
+        check_next_movement_r2h idx, ((h + 1)..(@hallway.size - 1)), +1
       end
 
       private def check_next_movement_r2h(idx, range, stepby)
@@ -267,7 +266,7 @@ module AdventOfCode2021
       private def solve_next_burrow(new_burrow)
         me = @min_energy
         next_me = new_burrow.solve
-        if !next_me.nil? && ( me.nil? || !me.nil? && next_me < me ) 
+        if !next_me.nil? && (me.nil? || !me.nil? && next_me < me)
           @snapshot = new_burrow
           @min_energy = next_me
         end
@@ -304,13 +303,12 @@ module AdventOfCode2021
       def self.energy_of(amp : UInt8)
         @@energies[(amp - AMBER).to_i]
       end
-
     end
 
     def main
       burrow1 = Burrow.new(File.read "./src/day#{DAY}/input.txt")
       burrow2 = Burrow.new(File.read "./src/day#{DAY}/input2.txt")
-      
+
       puts "Solutions of day#{DAY} : #{burrow1.solve} #{burrow2.solve}"
     end
   end
