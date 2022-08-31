@@ -45,4 +45,4 @@ Exactly I hated this 23rd puzzle. On 23rd December I have to delay solving puzzl
 
 I think choosing [crystal](https://crystal-lang.org/) was a good decision. With crystal I could write elegant and compact codes. Programming with crystal was so funny, parsing the input strings was really easy and during solving puzzles I didn't make so much mistakes. (Except Day23.) Tooling is quite enough, it supports unit tests, packaging etc... 
 
-I am very happy that I have learnt this fantastic language. 
+I am very happy about I have learnt this fantastic language. 
