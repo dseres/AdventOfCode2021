@@ -49,7 +49,7 @@ module AdventOfCode2021
           new_state[z] = prev_input * 10 + input
         end
       end
-      puts "Iteration : #{iteration}, number of states : #{state.size}"
+      # puts "Iteration : #{iteration}, number of states : #{state.size}"
       return new_state if iteration == 14
       return compute_largest params, iteration + 1, new_state
     end
@@ -69,7 +69,7 @@ module AdventOfCode2021
           new_state[z] = prev_input * 10 + input
         end
       end
-      puts "Iteration : #{iteration}, number of states : #{state.size}"
+      # puts "Iteration : #{iteration}, number of states : #{state.size}"
       return new_state if iteration == 14
       return compute_smallest params, iteration + 1, new_state
     end
